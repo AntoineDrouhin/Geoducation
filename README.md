@@ -1,2 +1,8 @@
 # Geoducation
-Devoir de Statistiques - Université Paris 1 Panthéon Sorbonne - M1 Miage Apprentissage
+
+### Mise en place
+
+* Installer RStudio
+ * https://www.rstudio.com/
+* Installer Rmarkdown
+ * http://rmarkdown.rstudio.com/index.html

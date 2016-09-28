@@ -7,15 +7,28 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+\begin{center}
+\textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
+\end{center}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Base de données
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Notre de base de données à été trouvée sur le site Data.gouv. 
+Nous avons croisé deux jeux de données distincts. Le premier concerne des données sur la performance des lycées en France (taux de réussite etc). Le second présente des données géographiques pour l’ensemble des établissement scolaires francais (Coordonnées GPS, etc.).
 
-```{r cars}
-summary(cars)
-```
+<https://www.data.gouv.fr/fr/>
+
+Nous avons choisi cette base car elle présente une approche intéressante sur la compréhension d’un sujet qui nous concerne tous, l’éducation.
+L’approche géographique des question de réussite scolaire nous a semblé être un champs suffisamment complet pour permettre l’utilisation des méthodes d’analyse vue en cours.
+
+
+L'intérêt et le questionnement général porte sur la réussite scolaire de la France en fonction de la position géographique des établissements scolaires. Y’a t-il une corrélation entre la situation géographique des établissements et la réussite scolaire des étudiants ?
+
+Plusieurs problématiques en découlent comme :
+
+Y’a t-il des différences de réussites entre le top 10 des grandes villes en France et les villes de province ?
+Paris bénéficie-t-elle d’une réussite supérieure au reste de la France ?
+Quelles régions de France semble réussir mieux que les autres ?
 
 ## Including Plots
 
