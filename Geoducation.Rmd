@@ -5,7 +5,9 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#knitr::opts_chunk$set(root.dir = './Projets/Geoducation/')
+#getwd()
+# Uncoment the following line and replace the path by yours
+#setwd('/Users/aureliengarret/Google\ Drive/Master\ 1\ MIAGE/Statistiques/Geoducation')
 ```
 \begin{center}
 \textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
@@ -35,14 +37,13 @@ Quelles régions de France semble réussir mieux que les autres ?
 
 ```{r}
 read.csv2("geoducation-data.csv", sep=";", header=TRUE, na.strings = "")->bdd
-#exists(bdd)
+#exists('bdd')
 ```
 
 ## Khi-Deux
 
 ```{r}
-read.csv2("geoducation-data.csv", sep=";", header=TRUE, na.strings = "")->bdd
-#exists(bdd)
+
 
 ```
 
