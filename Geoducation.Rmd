@@ -5,13 +5,15 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_chunk$set(root.dir = './Projets/Geoducation/')
 ```
-
 \begin{center}
 \textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
 \end{center}
 
-## Base de données
+## Introduction
+
+### Base de données
 
 Notre de base de données à été trouvée sur le site Data.gouv. 
 Nous avons croisé deux jeux de données distincts. Le premier concerne des données sur la performance des lycées en France (taux de réussite etc). Le second présente des données géographiques pour l’ensemble des établissement scolaires francais (Coordonnées GPS, etc.).
@@ -21,7 +23,6 @@ Nous avons croisé deux jeux de données distincts. Le premier concerne des donn
 Nous avons choisi cette base car elle présente une approche intéressante sur la compréhension d’un sujet qui nous concerne tous, l’éducation.
 L’approche géographique des question de réussite scolaire nous a semblé être un champs suffisamment complet pour permettre l’utilisation des méthodes d’analyse vue en cours.
 
-
 L'intérêt et le questionnement général porte sur la réussite scolaire de la France en fonction de la position géographique des établissements scolaires. Y’a t-il une corrélation entre la situation géographique des établissements et la réussite scolaire des étudiants ?
 
 Plusieurs problématiques en découlent comme :
@@ -30,12 +31,19 @@ Y’a t-il des différences de réussites entre le top 10 des grandes villes en 
 Paris bénéficie-t-elle d’une réussite supérieure au reste de la France ?
 Quelles régions de France semble réussir mieux que les autres ?
 
-## Including Plots
+#### Initialisation de la base de donnée
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+read.csv2("geoducation-data.csv", sep=";", header=TRUE, na.strings = "")->bdd
+#exists(bdd)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Khi-Deux
+
+```{r}
+read.csv2("geoducation-data.csv", sep=";", header=TRUE, na.strings = "")->bdd
+#exists(bdd)
+
+```
+
+
