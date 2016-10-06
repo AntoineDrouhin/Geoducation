@@ -12,6 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 \begin{center}
 \textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
 \end{center}
+# TODO, Note/CR de Réunion avec la prof :
+* décrire la base de données : taille, variable quanti ou quali (à faire pour la présentation orale)
+* Ségrégation scolaire
+
 
 ## Introduction
 
