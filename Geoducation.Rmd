@@ -67,8 +67,24 @@ for(i in 1:nrow(bddKhiDeux)){
     tableKhiDeux <- rbind(tableKhiDeux, data.frame(Académie = aca,ES = bddKhiDeux[i,"Effectif.Présents.série.ES"], S = bddKhiDeux[i,"Effectif.Présents.série.S"], L = bddKhiDeux[i,"Effectif.Présents.série.L"]))
   }
 }
-
-
 ```
+
+Ici on a crée notre tableau pour effectuer notre test du Khi Deux (nous deux)
+
+```{r}
+print(tableKhiDeux)
+```
+
+On procede maintenant aux étapes du khi deux :
+
+1 Calcul des effectifs théoriques
+
+```{r}
+khideux <- chisq.test(tableKhiDeux[,c('S','ES','L')])
+print(khideux)
+```
+
+La probabilité que la situation géographique soit indépendante de la répartition dans les différentes filiéres est donc inférieure à 2.2e-16.
+
 
 
