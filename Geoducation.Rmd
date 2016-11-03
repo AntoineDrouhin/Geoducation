@@ -36,13 +36,37 @@ Quelles régions de France semble réussir mieux que les autres ?
 #### Initialisation de la base de donnée
 
 ```{r}
-read.csv2("geoducation-data.csv", sep=";", header=TRUE, na.strings = "")->bdd
+read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "")->bdd
 #exists('bdd')
 ```
 
 ## Khi-Deux
 
 ```{r}
+
+bddKhiDeux = bdd[, c('Académie','Effectif.Présents.série.L','Effectif.Présents.série.ES','Effectif.Présents.série.S')]
+# Petit clean des datas (Antoine)
+bddKhiDeux[is.na(bddKhiDeux)] <- 0
+
+# Cette portion de code supporse que bdd est ordonné par nom d'académie. (Antoine)
+
+tableKhiDeux <- data.frame()
+indiceCourant = 1
+aca <- bddKhiDeux[1,"Académie"]
+
+for(i in 1:nrow(bddKhiDeux)){
+  if(aca != bddKhiDeux[i,"Académie"]){
+    indiceCourant = indiceCourant + 1
+    aca <- bddKhiDeux[i,"Académie"]
+  } 
+  if (length(rownames(tableKhiDeux)) != 0 && !is.na(tableKhiDeux[indiceCourant,"Académie"]) && bddKhiDeux[i,"Académie"] == tableKhiDeux[indiceCourant,"Académie"] ){
+    tableKhiDeux[indiceCourant,"ES"] <- tableKhiDeux[aca,"ES"] + bddKhiDeux[i,"Effectif.Présents.série.ES"]
+    tableKhiDeux[indiceCourant,"L"] <- tableKhiDeux[aca,"L"] + bddKhiDeux[i,"Effectif.Présents.série.L"]
+    tableKhiDeux[indiceCourant,"S"] <- tableKhiDeux[aca,"S"] + bddKhiDeux[i,"Effectif.Présents.série.S"]
+  } else {
+    tableKhiDeux <- rbind(tableKhiDeux, data.frame(Académie = aca,ES = bddKhiDeux[i,"Effectif.Présents.série.ES"], S = bddKhiDeux[i,"Effectif.Présents.série.S"], L = bddKhiDeux[i,"Effectif.Présents.série.L"]))
+  }
+}
 
 
 ```
