@@ -7,7 +7,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 #getwd()
 # Uncoment the following line and replace the path by yours
-#setwd('/Users/aureliengarret/Google\ Drive/Master\ 1\ MIAGE/Statistiques/Geoducation')
+setwd('/Users/aureliengarret/Google\ Drive/Master\ 1\ MIAGE/Statistiques/Geoducation')
 ```
 \begin{center}
 \textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
@@ -15,6 +15,13 @@ knitr::opts_chunk$set(echo = TRUE)
 # TODO, Note/CR de Réunion avec la prof :
 * décrire la base de données : taille, variable quanti ou quali (à faire pour la présentation orale)
 * Ségrégation scolaire
+* Idée :
+  * Essayer de faire une classif sur les différents tx de réussite et les filières (pas étonné qu'en ts gros tx de réussite, qu'en L non etc,...) Essayer de voir pourquoi meilleur on est meilleur on sera et vice versa.
+  * Choisir un indcateur de réussite, créer un indictauer en addtionnant les tx de réussite par lycée, puis régréssion pouvoir si dépend de la filière et de la géographie.
+  * Secteur pivéé/public
+  * Rural/urbain
+  * Puis régréssion synthétique
+  * Cherche taille des communes pour joindre
 
 
 ## Introduction
