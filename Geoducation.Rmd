@@ -98,7 +98,7 @@ print(khideux)
 La probabilité que la situation géographique soit indépendante de la répartition dans les différentes filiéres est donc inférieure à 2.2e-16.
 
 # Régréssion
-## Est ce que le taux de réussite s'explique par la localisation des èlèves en terminale S ?
+## Est ce que le taux de réussite des èlèves en terminale S s'explique par la localisation académique ?
 
 Commentaires Aurélien : A voir si la moyenne du tx de réussite c'est le bon truc, regarder et analyser les data et faire le bon choix de l'incateur.
 
@@ -128,7 +128,25 @@ Coefficients:
   
 Tend vers 0, donc la localisation n'explique pas le tx de réussite !!! Et ouais tonton !
 
+## Est ce que le taux de réussite des èlèves en terminale S s'explique par la localisation des communes ?
 
 
+```{r}
+bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S')]
+bddReg[is.na(bddReg)] <- 0
+bddReg[3] <- bddReg[3]/100
+
+df=data.frame(bddReg[1],bddReg[2],bddReg[3])
+df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0),]
+
+regData = aggregate(df$Effectif.Présents.série.S, by=list(df$Ville), FUN=sum)
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Ville), FUN=mean)[2])
 
 
+df = data.frame(regData[1], regData[2], regData[3])
+plot(df$x,df$x.1)
+model<-lm(df$x.1~df$x, data = df)
+model
+```
+
+Tend vers zero donc non !
