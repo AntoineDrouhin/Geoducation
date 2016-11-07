@@ -155,7 +155,7 @@ Tend vers zero donc non !
 
 
 ```{r}
-bddReg = bdd[, c('Etablissement','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S')]
+bddReg = bdd[, c('Etablissement','Effectif.Présents.série.S','Taux.Brut.de.réussite.série.S')]
 bddReg[is.na(bddReg)] <- 0
 bddReg[3] <- bddReg[3]/100
 
@@ -170,6 +170,15 @@ df = data.frame(regData[1], regData[2], regData[3])
 plot(df$x,df$x.1)
 model<-lm(df$x.1~df$x, data = df)
 model
+
+
 ```
 
 Tend vers 0 donc non aussi !
+
+p-value = risque d'érreur, probabilité d'érreur
+Quand très petite on a peu de chance de se tromper en infirmant qu'il y a lien entre les deux variables.
+
+Il y a un risque de 7 pour 1000 de me tromper quand je dis que les effectifs par ville explique le tx de réussite sachant que le lien reste faible.
+
+rajouter des variables explicatives
