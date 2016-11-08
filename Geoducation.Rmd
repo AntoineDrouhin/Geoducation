@@ -85,7 +85,6 @@ Plusieurs problématiques en découlent comme :
 Y’a t-il des différences de réussites entre le top 10 des grandes villes en France et les villes de province ?
 Paris bénéficie-t-elle d’une réussite supérieure au reste de la France ?
 Quelles régions de France semble réussir mieux que les autres ?
-
 #### Initialisation de la base de donnée
 
 ```{r}
@@ -120,24 +119,63 @@ for(i in 1:nrow(bddKhiDeux)){
     tableKhiDeux <- rbind(tableKhiDeux, data.frame(Académie = aca,ES = bddKhiDeux[i,"Effectif.Présents.série.ES"], S = bddKhiDeux[i,"Effectif.Présents.série.S"], L = bddKhiDeux[i,"Effectif.Présents.série.L"]))
   }
 }
-```
 
-Ici on a crée notre tableau pour effectuer notre test du Khi Deux (nous deux)
-
-```{r}
 print(tableKhiDeux)
 ```
 
-On procede maintenant aux étapes du khi deux :
+On dispose ici de la table de départ pour calculer le KhiDeux. Cette table nous donne l'agrégation des effectifs par Filiaire et par Académie.
 
-1 Calcul des effectifs théoriques
+```{r}
+# Calcul de la table des Abstrait
+abstraitKhiDeux <- tableKhiDeux
+
+for(i in 1:nrow(abstraitKhiDeux)){
+  abstraitKhiDeux$ES[i] = sum(tableKhiDeux$ES)*sum(tableKhiDeux[i,'ES'],tableKhiDeux[i,'S'],tableKhiDeux[i,'L'])/sum(tableKhiDeux$ES,tableKhiDeux$S,tableKhiDeux$L)
+  abstraitKhiDeux$S[i] = sum(tableKhiDeux$S)*sum(tableKhiDeux[i,'ES'],tableKhiDeux[i,'S'],tableKhiDeux[i,'L'])/sum(tableKhiDeux$ES,tableKhiDeux$S,tableKhiDeux$L)
+  abstraitKhiDeux$L[i] = sum(tableKhiDeux$L)*sum(tableKhiDeux[i,'ES'],tableKhiDeux[i,'S'],tableKhiDeux[i,'L'])/sum(tableKhiDeux$ES,tableKhiDeux$S,tableKhiDeux$L)
+}
+
+#Calcul de la table des ecarts
+ecartsKhiDeux <- tableKhiDeux
+
+for(i in 1:nrow(abstraitKhiDeux)){
+  ecartsKhiDeux$ES[i] = tableKhiDeux$ES[i] - abstraitKhiDeux$ES[i]
+  ecartsKhiDeux$S[i] = tableKhiDeux$S[i] - abstraitKhiDeux$S[i]
+  ecartsKhiDeux$L[i] = tableKhiDeux$L[i] - abstraitKhiDeux$L[i]
+}
+
+#Caclul de la table des contributions
+contribKhiDeux <- tableKhiDeux
+i=1
+for(i in 1:nrow(abstraitKhiDeux)){
+  contribKhiDeux$ES[i] = ecartsKhiDeux$ES[i]*ecartsKhiDeux$ES[i] / abstraitKhiDeux$ES[i]
+  contribKhiDeux$S[i] = ecartsKhiDeux$S[i]*ecartsKhiDeux$S[i] / abstraitKhiDeux$S[i]
+  contribKhiDeux$L[i] = ecartsKhiDeux$L[i]*ecartsKhiDeux$L[i] / abstraitKhiDeux$L[i]
+}
+
+print(contribKhiDeux)
+
+```
+
+Ici nous avons appliqué les étapes successives permettant de calculer le KhiDeux. Soit la corrélation entre les deux variables qualitatives : Académies et Filliaires.
+
+Sur la table des contributions(ci-dessus) on peut observer que certaines régions et séries ont une contribution fortes a rendre dépendante ces deux variables.
+
+On peut constater que certaines académies correspondantes a des zones géographiques périphériques ont une influance forte sur le khiDeux. Mayotte, Corse et Guadeloupe notamment. Dans ces régions la répartition entre les filières est modifiées et on trouve notamment une plus grande proportions de personnes en filiére Litéraire.
+
+Certaines académies de métropoles ont également des comportement particulier, par exemple l'académie de Versailles a une proportion particulièrement forte de ES et faible de L. Les académies de Limoges, montpellier et Strasbourg ont également des comportement qui s'écartent des standards.
+
+On constate finallement que la proportion de filliaire L a une forte tendance a varier alors que les filliaires ES et S ont souvent une proportions stable l'une par rapport à l'autre (environs un peux moins de deux fois plus de S que de ES). Ainsi de nombreuses académies ont une proportion de L élevée (Domtom etc..) ou faible (Lyon, Lille, Strasbourg etc..)
+
+Finallement on calcule le score global de khideux
 
 ```{r}
 khideux <- chisq.test(tableKhiDeux[,c('S','ES','L')])
 print(khideux)
 ```
 
-La probabilité que la situation géographique soit indépendante de la répartition dans les différentes filiéres est donc inférieure à 2.2e-16.
+Cet indicateur nous permet de dire que la situation géograpique est certainement fortement dépendante de la répartition entre les filliaires.
+En effet la probabilité que la situation géographique soit indépendante de la répartition dans les différentes filiéres est inférieure à 2.2e-16.
 
 # Régréssion
 ## Est ce que le taux de réussite des èlèves en terminale S s'explique par la localisation académique ?
