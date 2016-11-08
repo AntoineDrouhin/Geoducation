@@ -184,4 +184,37 @@ Il y a un risque de 7 pour 1000 de me tromper quand je dis que les effectifs par
 
 rajouter des variables explicatives
 
+## Est ce que les taux de réussite S, ES et L de chaque Acamédie explique le taux de réussite général de chaque académie ?
 
+
+```{r}
+
+bddReg = bdd[, c('Académie',
+                 'Taux.Brut.de.réussite.série.S',
+                 'Taux.Brut.de.réussite.série.ES',
+                 'Taux.Brut.de.réussite.série.L')]
+bddReg[is.na(bddReg)] <- 0
+bddReg[2] <- bddReg[2]/100
+bddReg[3] <- bddReg[3]/100
+bddReg[4] <- bddReg[4]/100
+
+df=data.frame(bddReg[1],bddReg[2],bddReg[3],bddReg[4])
+df<-df[ (df$Taux.Brut.de.réussite.série.S>0
+         & df$Taux.Brut.de.réussite.série.ES>0
+         & df$Taux.Brut.de.réussite.série.L>0),]
+
+regData = c(aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Académie), FUN=mean))
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.ES, by=list(df$Académie), FUN=mean)[2])
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Académie), FUN=mean)[2])
+
+df = data.frame(regData[1], regData[2], regData[3], regData[4])
+df[5] <- mean(sum(df[2], df[3], df[4]) / 100)
+col_headings <- c('Ville','TxRéussite_S','TxRéussite_ES','TxRéussite_L', 'TxRéussiteGlobal' )
+names(df) <- col_headings
+
+df
+
+model<-lm(df$TxRéussiteGlobal ~ df$TxRéussite_S + df$TxRéussite_ES + df$TxRéussite_L, data = df)
+summary(model)
+
+```
