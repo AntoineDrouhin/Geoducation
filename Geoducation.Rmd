@@ -38,7 +38,7 @@ L’approche géographique des question de réussite scolaire nous a semblé êt
 La base de données comporte de nombreuses données qui sont réparties sur toutes la France. Nous avons des répartitions de données par établissements, villes, départements et académies. Par ailleurs l'ensemble des bac généraux et technologique ainsi que certains bac professionnels sont représentés. 
 ```{r, include=FALSE}
 
-read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "")->bdd
+read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
 bddEff = bdd[, c('Académie','Effectif.Présents.Total.séries')]
 # Petit clean des datas (Antoine)
 bddEff[is.na(bddEff)] <- 0
@@ -88,7 +88,7 @@ Quelles régions de France semble réussir mieux que les autres ?
 #### Initialisation de la base de donnée
 
 ```{r}
-read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "")->bdd
+read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
 #exists('bdd')
 ```
 
