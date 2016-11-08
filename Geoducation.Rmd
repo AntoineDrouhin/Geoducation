@@ -5,9 +5,8 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#getwd()
-# Uncoment the following line and replace the path by yours
-setwd('/Users/aureliengarret/Google\ Drive/Master\ 1\ MIAGE/Statistiques/Geoducation')
+(WD <- getwd())
+if (!is.null(WD)) setwd(WD)
 ```
 \begin{center}
 \textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
@@ -36,6 +35,49 @@ Nous avons croisé deux jeux de données distincts. Le premier concerne des donn
 Nous avons choisi cette base car elle présente une approche intéressante sur la compréhension d’un sujet qui nous concerne tous, l’éducation.
 L’approche géographique des question de réussite scolaire nous a semblé être un champs suffisamment complet pour permettre l’utilisation des méthodes d’analyse vue en cours.
 
+La base de données comporte de nombreuses données qui sont réparties sur toutes la France. Nous avons des répartitions de données par établissements, villes, départements et académies. Par ailleurs l'ensemble des bac généraux et technologique ainsi que certains bac professionnels sont représentés. 
+```{r, include=FALSE}
+
+read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "")->bdd
+bddEff = bdd[, c('Académie','Effectif.Présents.Total.séries')]
+# Petit clean des datas (Antoine)
+bddEff[is.na(bddEff)] <- 0
+tableEff <- data.frame()
+indiceCourant = 1
+aca <- bddEff[1,"Académie"]
+
+for(i in 1:nrow(bddEff)){
+  if(aca != bddEff[i,"Académie"]){
+    indiceCourant = indiceCourant + 1
+    aca <- bddEff[i,"Académie"]
+  } 
+  if (length(rownames(tableEff)) != 0 && !is.na(tableEff[indiceCourant,"Académie"]) && bddEff[i,"Académie"] == tableEff[indiceCourant,"Académie"] ){
+    tableEff[indiceCourant,"Effectif"] <- tableEff[aca,"Effectif"] + bddEff[i,"Effectif.Présents.Total.séries"]
+  } else {
+    tableEff <- rbind(tableEff, data.frame("Académie" = aca,"Effectif" = bddEff[i,"Effectif.Présents.Total.séries"]))
+  }
+}
+seuil <- mean(tableEff[,2])
+autre = 0
+tableRes <- data.frame("Académie" = character(), "Effectifs" = double(), stringsAsFactors = FALSE)
+for(i in 1:length(tableEff[,'Académie'])){
+  if(tableEff[i,2]< seuil){
+    autre = autre + tableEff[i,'Effectif']
+  }
+  else {
+    tableRes[i,'Académie'] <- as.character(tableEff[i,"Académie"])
+    tableRes[i,2] <- tableEff[i,2]
+  }
+}
+tableRes[length(tableRes[,"Académie"])+1,"Académie"]="Autre"
+tableRes[length(tableRes[,"Académie"]),"Effectifs"]=autre
+tableRes<-tableRes[-which(is.na(tableRes[])),]
+slices <- tableRes[,2]
+lbls <- tableRes[,1]
+```
+```{r}
+print(pie(slices, labels = lbls, main="Répartition des effectifs par académie"))
+```
 L'intérêt et le questionnement général porte sur la réussite scolaire de la France en fonction de la position géographique des établissements scolaires. Y’a t-il une corrélation entre la situation géographique des établissements et la réussite scolaire des étudiants ?
 
 Plusieurs problématiques en découlent comme :
