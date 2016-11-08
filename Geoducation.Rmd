@@ -117,10 +117,14 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Aca
 df = data.frame(regData[1], regData[2], regData[3])
 col_headings <- c('Académie','Effectif', 'TxRéussite')
 names(df) <- col_headings
-plot(df$Effectif,df$TxRéussite)
+
 
 model<-lm(df$TxRéussite~df$Effectif, data = df)
 summary(model)
+
+plot(df$Effectif,df$TxRéussite)
+x <- seq(0,18000)
+lines(x,x*1.588e-06+9.072e-01,col="red")
 
 ```
 
@@ -147,6 +151,10 @@ names(df) <- col_headings
 plot(df$Effectif,df$TxRéussite)
 model<-lm(df$TxRéussite~df$Effectif, data = df)
 summary(model)
+
+plot(df$Effectif,df$TxRéussite)
+x <- seq(0,2300)
+lines(x,x*2.741e-05+9.125e-01,col="red")
 ```
 
 Tend vers zero donc non !
@@ -172,6 +180,10 @@ names(df) <- col_headings
 plot(df$Effectif,df$TxRéussite)
 model<-lm(df$TxRéussite~df$Effectif, data = df)
 summary(model)
+
+plot(df$Effectif,df$TxRéussite)
+x <- seq(0,1000)
+lines(x,x*5.812e-05+9.131e-01,col="red")
 
 ```
 
