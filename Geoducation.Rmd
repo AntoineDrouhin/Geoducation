@@ -115,18 +115,16 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Aca
 
 
 df = data.frame(regData[1], regData[2], regData[3])
-plot(df$x,df$x.1)
+col_headings <- c('Académie','Effectif', 'TxRéussite')
+names(df) <- col_headings
+plot(df$Effectif,df$TxRéussite)
 
-model<-lm(df$x.1~df$x, data = df)
-model
+model<-lm(df$TxRéussite~df$Effectif, data = df)
+summary(model)
+
 ```
 
-Conclusion Aurélien: 
-Coefficients:
-(Intercept)         df$x  
-  9.072e-01    1.588e-06  
-  
-Tend vers 0, donc la localisation n'explique pas le tx de réussite !!! Et ouais tonton !
+Conclusion Aurélien: Tracer la droite
 
 ## Est ce que le taux de réussite des èlèves en terminale S s'explique par la localisation des communes ?
 
@@ -144,9 +142,11 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Vil
 
 
 df = data.frame(regData[1], regData[2], regData[3])
-plot(df$x,df$x.1)
-model<-lm(df$x.1~df$x, data = df)
-model
+col_headings <- c('Ville','Effectif', 'TxRéussite')
+names(df) <- col_headings
+plot(df$Effectif,df$TxRéussite)
+model<-lm(df$TxRéussite~df$Effectif, data = df)
+summary(model)
 ```
 
 Tend vers zero donc non !
@@ -167,10 +167,11 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Eta
 
 
 df = data.frame(regData[1], regData[2], regData[3])
-plot(df$x,df$x.1)
-model<-lm(df$x.1~df$x, data = df)
-model
-
+col_headings <- c('Ville','Effectif', 'TxRéussite')
+names(df) <- col_headings
+plot(df$Effectif,df$TxRéussite)
+model<-lm(df$TxRéussite~df$Effectif, data = df)
+summary(model)
 
 ```
 
@@ -182,3 +183,5 @@ Quand très petite on a peu de chance de se tromper en infirmant qu'il y a lien 
 Il y a un risque de 7 pour 1000 de me tromper quand je dis que les effectifs par ville explique le tx de réussite sachant que le lien reste faible.
 
 rajouter des variables explicatives
+
+
