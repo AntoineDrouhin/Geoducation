@@ -11,17 +11,6 @@ if (!is.null(WD)) setwd(WD)
 \begin{center}
 \textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
 \end{center}
-# TODO, Note/CR de Réunion avec la prof :
-* décrire la base de données : taille, variable quantitatif ou qualitatif (à faire pour la présentation orale)
-* Ségrégation scolaire
-* Idée :
-  * Essayer de faire une classification sur les différents taux de réussite et les filières (pas étonné qu'en ts gros tx de réussite, qu'en L non etc,...) Essayer de voir pourquoi meilleur on est meilleur on sera et vice versa.
-  * Choisir un indicateur de réussite, créer un indicateur en additionnant les taux de réussite par lycée, puis régression pouvoir si dépend de la filière et de la géographie.
-  * Secteur privé/public
-  * Rural/urbain
-  * Puis régression synthétique
-  * Cherche taille des communes pour joindre
-
 
 ## Introduction
 
@@ -36,7 +25,7 @@ Nous avons choisi cette base car elle présente une approche intéressante sur l
 L’approche géographique des questions de réussite scolaire nous a semblé être un champ suffisamment complet pour permettre l’utilisation des méthodes d’analyse vue en cours.
 
 La base de données comporte de nombreuses données qui sont réparties sur toutes la France. Nous avons des répartitions de données par établissements, villes, départements et académies. Par ailleurs l'ensemble des bacs généraux et technologiques ainsi que certains bacs professionnels sont représentés. 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 
 read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
 bddEff = bdd[, c('Académie','Effectif.Présents.Total.séries')]
@@ -74,10 +63,10 @@ tableRes[length(tableRes[,"Académie"]),"Effectifs"]=autre
 tableRes<-tableRes[-which(is.na(tableRes[])),]
 slices <- tableRes[,2]
 lbls <- tableRes[,1]
-```
-```{r}
+
 print(pie(slices, labels = lbls, main="Répartition des effectifs par académie"))
 ```
+
 L'intérêt et le questionnement général porte sur la réussite scolaire de la France en fonction de la position géographique des établissements scolaires. Y a-t-il une corrélation entre la situation géographique des établissements et la réussite scolaire des étudiants ?
 
 Plusieurs problématiques en découlent comme :
@@ -87,14 +76,14 @@ Paris bénéficie-t-elle d’une réussite supérieure au reste de la France ?
 Quelles régions de France semblent réussir mieux que les autres ?
 #### Initialisation de la base de données
 
-```{r}
+```{r include=FALSE}
 read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
 #exists('bdd')
 ```
 
-## Khi-Deux
+## Test de dépendance entre les académie et les filères (Méthode khi-deux)
 
-```{r}
+```{r echo=FALSE}
 
 bddKhiDeux = bdd[, c('Académie','Effectif.Présents.série.L','Effectif.Présents.série.ES','Effectif.Présents.série.S')]
 # Petit clean des datas (Antoine)
@@ -125,7 +114,7 @@ print(tableKhiDeux)
 
 On dispose ici de la table de départ pour calculer le Khi Deux. Cette table nous donne l'agrégation des effectifs par filière et par académie.
 
-```{r}
+```{r echo=FALSE}
 # Calcul de la table des Abstrait
 abstraitKhiDeux <- tableKhiDeux
 
@@ -157,7 +146,7 @@ print(contribKhiDeux)
 
 ```
 
-Ici nous avons appliqué les étapes successives permettant de calculer le Khi Deux. Soit la corrélation entre les deux variables qualitatives : Académies et Filière.
+Ici nous avons appliqué les étapes successives permettant de calculer le Khi Deux. Soit le test de dépendance entre les deux variables qualitatives : Académies et Filière.
 
 Sur la table des contributions (ci-dessus) on peut observer que certaines régions et séries ont une contribution fortes à rendre dépendante ces deux variables.
 
@@ -169,7 +158,7 @@ On constate finalement que la proportion de filière L a une forte tendance à v
 
 Finalement on calcule le score global de khi deux
 
-```{r}
+```{r echo=FALSE}
 khideux <- chisq.test(tableKhiDeux[,c('S','ES','L')])
 print(khideux)
 ```
@@ -186,11 +175,11 @@ Une interrogation récurrente vis à vis de la réussite scolaire est de se dema
 Pour essayer de déterminer si l'académie a un rôle prédominant dans la réussite de l'élève nous allons chercher à connaitre l'impact de l'académie sur le taux de réussite au bac S, mais nous nous interrogerons aussi sur l'influence émise par les taux de réussite au baccalauréat L. Ainsi, un environnement, crée par la jointure entre une situation géographique donnée et un taux de réussite dans une autre filière donné, a-t-il un fort impact sur la réussite d'un élève passant son baccalauréat scientifique ?
 
 Ainsi, nous allons créer une matrice comportant l'académie, l'effectif présent en série scientifique, le taux brut de réussite dans cette même série et le taux dans la série L. 
-```{r}
+```{r echo=FALSE}
 bddReg = bdd[, c('Académie','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
 ```
 Nous procédons ensuite au nettoyage de notre matrice en retirant les valeurs nulles et en transformant les taux à une forme 0<x<1.De plus nous retirons les valeurs aberrantes, soit celles où il n'y a pas d'élève inscrit dans les filières étudiées.  
-```{r}
+```{r echo=FALSE}
 #valeur non définies mise à 0
 bddReg[is.na(bddReg)] <- 0
 #transformation des taux
@@ -202,7 +191,7 @@ df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
 df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0 & df$Taux.Brut.de.réussite.série.L>0),]
 ```
 Pour mener une étude par académie nous devons agréger l'ensemble des établissements scolaire appartenant à la même académie.
-```{r}
+```{r echo=FALSE}
 #regroupement des effectifs par académie
 regData = aggregate(df$Effectif.Présents.série.S, by=list(df$Académie), FUN=sum)
 #moyenne de l'ensemble des taux de réussite des lycées par académie
@@ -211,7 +200,7 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Aca
 
 ```
 Nous créons maintenant notre model linéaire et nous allons procéder à la régression. 
-```{r}
+```{r echo=FALSE}
 #création du modèle 
 df = data.frame(regData[1], regData[2], regData[3], regData[4])
 col_headings <- c('Académie','Effectif', 'TxRéussiteS', 'TxRéussiteL')
@@ -226,14 +215,14 @@ Cependant nous pouvons aussi observer que les deux variables utilisées n'ont pa
 En effet, l'effectif semble avoir un faible impact (-5.343e-08), tandis que le Taux de réussite en série L a un impact fort (5.170e-01).
 
 Nous pouvons représenter l'impact de l'effectif par le nuage de point suivant, et nous constatons que la droite de la fonction de régression 
-```{r}
+```{r echo=FALSE}
 plot(df$Effectif,df$TxRéussiteS)
 x <- seq(0,18000)
 lines(x,x*-5.343e-08+4.434e-01,col="red")
 ```
 
 Nous pouvons représenter l'impact du taux de réussite de la série L par le nuage de points suivant, et nous constatons que la droite de la fonction de régression montre une augmentation forte. 
-```{r}
+```{r echo=FALSE}
 plot(df$TxRéussiteL,df$TxRéussiteS)
 x <- seq(0,18000)
 lines(x,x*5.170e-01+4.434e-01,col="red")
@@ -254,13 +243,13 @@ Nous cherchons à savoir ici si le fait qu'un étudiant inscrit au baccalauréat
 
 La première étape de ce cas de test réunie dans une nouvelle matrice, les colonnes "Ville", "Effectif.Présents.série.S" et "Taux.Brut.de.réussite.série.S". Nous allons tenter d'expliquer par la suite le taux de réussite de chaque ville par les effectifs inscrit dans ces mêmes localisations. Nous irons aussi voir si le taux de réussite de la série L explique en partie le taux de réussite de la série S.
 
-```{r}
+```{r echo=FALSE}
 bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
 ```
 
 Maintenant que nous disposons des données propres à l'étude de ce cas, nous avons besoin de nettoyer les données. Il faut notamment mettre des valeurs nulles dans les champs non remplis et ramèner le taux à des valeurs comprises entre 0 et 1.
 
-```{r}
+```{r echo=FALSE}
 # Permet de mettre 0 dans les cases non remplies
 bddReg[is.na(bddReg)] <- 0
 # Ramène le pourcentage du taux de réussite à une valeur entre 0 et 1
@@ -270,14 +259,14 @@ bddReg[4] <- bddReg[4]/100
 
 Pour pallier à des villes où aucun candidat ne serait inscrit dans la série S, nous supprimons volontairement ces enregistrements qui sont considérés comme des individus aberrants pour notre étude. C'est ce que fait la portion de code suivante.
 
-```{r}
+```{r echo=FALSE}
 df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
 df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0 & df$Taux.Brut.de.réussite.série.L>0),]
 ```
 
 Ce que nous allons faire maintenant, c'est faire un groupement par ville en faisant la somme des effectifs et la moyenne des taux de réussite de chaque établissement pour avoir un seul enregistrement par ville.
 
-```{r}
+```{r echo=FALSE}
 # Addition des efefctifs groupé par Ville
 regData = aggregate(df$Effectif.Présents.série.S, by=list(df$Ville), FUN=sum)
 # Moyenne des taux de réussite des séries S assimilée
@@ -288,7 +277,7 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Vil
 
 On peut donc maintenant s'apercevoir de la répartition du taux de réussite S en fonction des effectifs par ville.
 
-```{r}
+```{r echo=FALSE}
 df = data.frame(regData[1], regData[2], regData[3], regData[4])
 col_headings <- c('Ville','EffectifS', 'TxRéussiteS', 'TxRéussiteL')
 names(df) <- col_headings
@@ -298,7 +287,7 @@ plot(df$EffectifS,df$TxRéussiteS)
 ### Analyse
 
 Nous allons donc effectuer une régression linéaire sur ces données pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat.
-```{r}
+```{r echo=FALSE}
 model<-lm(df$TxRéussiteS~df$EffectifS + df$TxRéussiteL, data = df)
 summary(model)
 ```
@@ -310,7 +299,7 @@ Le R carré ajusté en tendant vers 0 (adjusted R sqare = 0.005677) nous indique
 
 En traçant la droite ax + b correspondant au modèle (2.741e-05*x + 6.171e-01), on remarque sa faible pente et sa représentation plutôt horizontale ce qui indique aussi par le visuel un faible lien.
 
-```{r}
+```{r echo=FALSE}
 plot(df$EffectifS,df$TxRéussiteS)
 x <- seq(0,2300)
 lines(x,x*2.741e-05+6.171e-01,col="red")
@@ -319,7 +308,7 @@ lines(x,x*2.741e-05+6.171e-01,col="red")
 En revanche pour le taux de réussite des séries L explique encore une fois le taux de réussite des séries S. On peut imaginer que le niveau général d'une ville irradie de L en S. Ce lien existe avec un R carré ajusté de 0.1533 avec une p-value infinitésimalement petite. Il y a donc quasiment aucune chance de se tromper sur ce point.
 
 A titre informatif voici la droite du modèle qui représente ce lien :
-```{r}
+```{r echo=FALSE}
 plot(df$TxRéussiteL,df$TxRéussiteS)
 x <- seq(0,1)
 lines(x,x*3.228e-01+6.171e-01,col="red")
@@ -331,7 +320,7 @@ Revenons un instant sur la repartition de notre nuage de point effectif serie S 
 
 Regardons à nouveau le nuage de points :
 
-```{r}
+```{r echo=FALSE}
 plot(df$EffectifS,df$TxRéussiteS)
 ```
 
@@ -350,7 +339,7 @@ Catégorie taux de réussite
 
 Commençons par reconstruire le tableau des effectifs qui nous servira au calcul du khi deux en respectant les catégorie énnoncées ci dessus.
 
-```{r}
+```{r echo=FALSE}
 
 # Petit - Très bien
 PetitTBien <- sum(df$EffectifS[which(df$EffectifS>=1&df$EffectifS< 300 & df$TxRéussiteS>=0.9&df$TxRéussiteS<= 1 )])
@@ -373,7 +362,7 @@ GrandBien <- sum(df$EffectifS[which(df$EffectifS>=500&df$EffectifS<= 1000 & df$T
 
 A partir de la construction des valeurs dont nous avons besoin, nous les réunissont dans une matrice.
 
-```{r}
+```{r echo=FALSE}
 # Unification des données dans une matrice
 chideuxData <- data.frame(c(PetitTBien, PetitBien),c(MoyenTBien, MoyenBien), c(GrandTBien, GrandBien))
 
@@ -387,7 +376,7 @@ chideuxData
 
 Nous faisons maintenant le calcul de notre khi deux sur nos effectifs.
 
-```{r}
+```{r echo=FALSE}
 chisq.test(chideuxData)
 ```
 
@@ -397,7 +386,7 @@ Ce test d'indépendance par khi deux nous démontre qu'il y a dependance entre l
 
 
 TODO : EXPLIQUER LE CODE PARCE QUE RIEN N'EST EXPIQUÉ
-```{r}
+```{r echo=FALSE}
 # [1] Extraction des champs qui nous interessent
 reg_multi_extrac_data = bdd[, c(
   'Secteur.Public.PU.Privé.PR',
@@ -455,7 +444,7 @@ summary(reg_multi)
 ```
 R² = 97% donc le modèle est précis
 Nous avons 97% de la variance du taux de réussite qui peut être expliquée par les variations de ... 
-```{r}
+```{r echo=FALSE}
 #reg_multi
 hist(resid(reg_multi), col="grey", main="")
 ```
@@ -465,4 +454,247 @@ Conclusion en cours de rédaction
 #Conclusion Générale
 
 
+#Annexes
+
+# Initialisation de la base de données
+
+```{r}
+read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
+```
+
+## Annexes 1 - Test de dépendance entre Académie et Filière
+
+```{r}
+
+bddKhiDeux = bdd[, c('Académie','Effectif.Présents.série.L','Effectif.Présents.série.ES','Effectif.Présents.série.S')]
+# Petit clean des datas (Antoine)
+bddKhiDeux[is.na(bddKhiDeux)] <- 0
+
+# Cette portion de code supporse que bdd est ordonné par nom d'académie. (Antoine)
+
+tableKhiDeux <- data.frame()
+indiceCourant = 1
+aca <- bddKhiDeux[1,"Académie"]
+
+for(i in 1:nrow(bddKhiDeux)){
+  if(aca != bddKhiDeux[i,"Académie"]){
+    indiceCourant = indiceCourant + 1
+    aca <- bddKhiDeux[i,"Académie"]
+  } 
+  if (length(rownames(tableKhiDeux)) != 0 && !is.na(tableKhiDeux[indiceCourant,"Académie"]) && bddKhiDeux[i,"Académie"] == tableKhiDeux[indiceCourant,"Académie"] ){
+    tableKhiDeux[indiceCourant,"ES"] <- tableKhiDeux[aca,"ES"] + bddKhiDeux[i,"Effectif.Présents.série.ES"]
+    tableKhiDeux[indiceCourant,"L"] <- tableKhiDeux[aca,"L"] + bddKhiDeux[i,"Effectif.Présents.série.L"]
+    tableKhiDeux[indiceCourant,"S"] <- tableKhiDeux[aca,"S"] + bddKhiDeux[i,"Effectif.Présents.série.S"]
+  } else {
+    tableKhiDeux <- rbind(tableKhiDeux, data.frame(Académie = aca,ES = bddKhiDeux[i,"Effectif.Présents.série.ES"], S = bddKhiDeux[i,"Effectif.Présents.série.S"], L = bddKhiDeux[i,"Effectif.Présents.série.L"]))
+  }
+}
+
+print(tableKhiDeux)
+
+# Calcul de la table des Abstrait
+abstraitKhiDeux <- tableKhiDeux
+
+for(i in 1:nrow(abstraitKhiDeux)){
+  abstraitKhiDeux$ES[i] = sum(tableKhiDeux$ES)*sum(tableKhiDeux[i,'ES'],tableKhiDeux[i,'S'],tableKhiDeux[i,'L'])/sum(tableKhiDeux$ES,tableKhiDeux$S,tableKhiDeux$L)
+  abstraitKhiDeux$S[i] = sum(tableKhiDeux$S)*sum(tableKhiDeux[i,'ES'],tableKhiDeux[i,'S'],tableKhiDeux[i,'L'])/sum(tableKhiDeux$ES,tableKhiDeux$S,tableKhiDeux$L)
+  abstraitKhiDeux$L[i] = sum(tableKhiDeux$L)*sum(tableKhiDeux[i,'ES'],tableKhiDeux[i,'S'],tableKhiDeux[i,'L'])/sum(tableKhiDeux$ES,tableKhiDeux$S,tableKhiDeux$L)
+}
+
+#Calcul de la table des écarts
+ecartsKhiDeux <- tableKhiDeux
+
+for(i in 1:nrow(abstraitKhiDeux)){
+  ecartsKhiDeux$ES[i] = tableKhiDeux$ES[i] - abstraitKhiDeux$ES[i]
+  ecartsKhiDeux$S[i] = tableKhiDeux$S[i] - abstraitKhiDeux$S[i]
+  ecartsKhiDeux$L[i] = tableKhiDeux$L[i] - abstraitKhiDeux$L[i]
+}
+
+#Calcul de la table des contributions
+contribKhiDeux <- tableKhiDeux
+i=1
+for(i in 1:nrow(abstraitKhiDeux)){
+  contribKhiDeux$ES[i] = ecartsKhiDeux$ES[i]*ecartsKhiDeux$ES[i] / abstraitKhiDeux$ES[i]
+  contribKhiDeux$S[i] = ecartsKhiDeux$S[i]*ecartsKhiDeux$S[i] / abstraitKhiDeux$S[i]
+  contribKhiDeux$L[i] = ecartsKhiDeux$L[i]*ecartsKhiDeux$L[i] / abstraitKhiDeux$L[i]
+}
+
+print(contribKhiDeux)
+
+khideux <- chisq.test(tableKhiDeux[,c('S','ES','L')])
+print(khideux)
+```
+
+## Annexes 2 - Expliquer le taux de réussite des séries S par les effectifs et le taux de réussite des séries L
+
+### Régréssion Taux de réussite des séries S ~ Effectifs des séries S par Académie + Taux de réussite des séries L
+
+```{r}
+bddReg = bdd[, c('Académie','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
+
+#valeur non définies mise à 0
+bddReg[is.na(bddReg)] <- 0
+#transformation des taux
+bddReg[3] <- bddReg[3]/100
+bddReg[4] <- bddReg[4]/100
+
+df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
+#suppression des données aberrantes
+df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0 & df$Taux.Brut.de.réussite.série.L>0),]
+
+#regroupement des effectifs par académie
+regData = aggregate(df$Effectif.Présents.série.S, by=list(df$Académie), FUN=sum)
+#moyenne de l'ensemble des taux de réussite des lycées par académie
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Académie), FUN=mean)[2])
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Académie), FUN=mean)[2])
+
+#création du modèle 
+df = data.frame(regData[1], regData[2], regData[3], regData[4])
+col_headings <- c('Académie','Effectif', 'TxRéussiteS', 'TxRéussiteL')
+names(df) <- col_headings
+model<-lm(df$TxRéussiteS~df$Effectif+df$TxRéussiteL, data = df)
+#affichage des résultats
+summary(model)
+
+plot(df$Effectif,df$TxRéussiteS)
+x <- seq(0,18000)
+lines(x,x*-5.343e-08+4.434e-01,col="red")
+
+plot(df$TxRéussiteL,df$TxRéussiteS)
+x <- seq(0,18000)
+lines(x,x*5.170e-01+4.434e-01,col="red")
+```
+
+
+### Régréssion Taux de réussite des séries S ~ Effectifs des séries S par Ville + Taux de réussite des séries L + Test du chi-deux entre Taux de réussite S et Effectifs des séries S
+
+
+```{r}
+bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
+
+# Permet de mettre 0 dans les cases non remplies
+bddReg[is.na(bddReg)] <- 0
+# Ramène le pourcentage du taux de réussite à une valeur entre 0 et 1
+bddReg[3] <- bddReg[3]/100
+bddReg[4] <- bddReg[4]/100
+
+df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
+df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0 & df$Taux.Brut.de.réussite.série.L>0),]
+
+# Addition des efefctifs groupé par Ville
+regData = aggregate(df$Effectif.Présents.série.S, by=list(df$Ville), FUN=sum)
+# Moyenne des taux de réussite des séries S assimilée
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Ville), FUN=mean)[2])
+# Moyenne des taux de réussite des séries L assimilée
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Ville), FUN=mean)[2])
+
+df = data.frame(regData[1], regData[2], regData[3], regData[4])
+col_headings <- c('Ville','EffectifS', 'TxRéussiteS', 'TxRéussiteL')
+names(df) <- col_headings
+plot(df$EffectifS,df$TxRéussiteS)
+
+model<-lm(df$TxRéussiteS~df$EffectifS + df$TxRéussiteL, data = df)
+summary(model)
+
+plot(df$EffectifS,df$TxRéussiteS)
+x <- seq(0,2300)
+lines(x,x*2.741e-05+6.171e-01,col="red")
+
+plot(df$TxRéussiteL,df$TxRéussiteS)
+x <- seq(0,1)
+lines(x,x*3.228e-01+6.171e-01,col="red")
+
+plot(df$EffectifS,df$TxRéussiteS)
+
+# Petit - Très bien
+PetitTBien <- sum(df$EffectifS[which(df$EffectifS>=1&df$EffectifS< 300 & df$TxRéussiteS>=0.9&df$TxRéussiteS<= 1 )])
+
+# Petit - Bien
+PetitBien <- sum(df$EffectifS[which(df$EffectifS>=1&df$EffectifS< 300 & df$TxRéussiteS>=0.8&df$TxRéussiteS< 0.9 )])
+
+# Moyen - Très bien
+MoyenTBien <- sum(df$EffectifS[which(df$EffectifS>=300&df$EffectifS< 500 & df$TxRéussiteS>=0.9&df$TxRéussiteS<= 1 )])
+
+# Moyen - Bien
+MoyenBien <- sum(df$EffectifS[which(df$EffectifS>=300&df$EffectifS< 500 & df$TxRéussiteS>=0.8&df$TxRéussiteS< 0.9 )])
+
+# Grand - Très bien
+GrandTBien <- sum(df$EffectifS[which(df$EffectifS>=500&df$EffectifS<= 1000 & df$TxRéussiteS>=0.9&df$TxRéussiteS<= 1 )])
+
+# Grand - Bien
+GrandBien <- sum(df$EffectifS[which(df$EffectifS>=500&df$EffectifS<= 1000 & df$TxRéussiteS>=0.8&df$TxRéussiteS< 0.9 )])
+
+# Unification des données dans une matrice
+chideuxData <- data.frame(c(PetitTBien, PetitBien),c(MoyenTBien, MoyenBien), c(GrandTBien, GrandBien))
+
+# Nommage des colonnes et des lignes
+names(chideuxData) <- c('Effectif petit', 'Effectif moyen', 'Effectif grand')
+rownames(chideuxData) <- c('Très bien', 'Bien')
+
+# Affichage de nos effectifs réels
+chideuxData
+
+chisq.test(chideuxData)
+```
+
+## Annexes 3 - Régréssion multiple
+
+```{r echo=FALSE}
+# [1] Extraction des champs qui nous interessent
+reg_multi_extrac_data = bdd[, c(
+  'Secteur.Public.PU.Privé.PR',
+  'Sructure.p.dagogique.en.7.groupes',
+  'Effectif.Présents.série.L',
+  'Effectif.Présents.série.ES', 
+  'Effectif.Présents.série.S', 
+  'Taux.Brut.de.réussite.série.L', 
+  'Taux.Brut.de.réussite.série.ES',
+  'Taux.Brut.de.réussite.série.S',
+  'Taux.Brut.de.réussite.Total.séries',
+  'Taux.accés.Brut.premi.re.BAC',
+  'Taux.accés.Brut.terminale.BAC'
+)]
+
+# [2] Renommage des colonnes
+names(reg_multi_extrac_data) <- c(
+  'Secteur_lycee',
+  'Sructure_lycee',
+  'Effectif_L',
+  'Effectif_ES', 
+  'Effectif_S', 
+  'Reussite_L', 
+  'Reussite_ES',
+  'Reussite_S',
+  'Reussite_Total',
+  'Acces_prem_BAC',
+  'Acces_term_BAC'
+)
+
+# [3] Copie de l'extraction pour travailler dessus
+reg_multi_bdd = reg_multi_extrac_data
+str(reg_multi_bdd)
+
+# [4] Nettoyage des données
+# on ne s'interesse que aux données des établissements avec uniquement des filières généraux
+reg_multi_bdd <- subset(reg_multi_bdd, Sructure_lycee == "A")
+# suppression des lignes contenant des NA
+reg_multi_bdd <- na.omit(reg_multi_bdd)
+# suppression des colonnes non utilisées pour la regression
+reg_multi_bdd <- reg_multi_bdd[,-2]
+# conversion pour la reconnaissance des variables QUANTI
+for (i in 2:ncol(reg_multi_bdd)) {
+  reg_multi_bdd[, i] <- as.numeric(as.character(reg_multi_bdd[, i]))
+}
+# remplacement de la variable quali en quanti
+reg_multi_bdd[, 1] <- as.character(reg_multi_bdd[, 1])
+reg_multi_bdd$Secteur_lycee[reg_multi_bdd$Secteur_lycee=="PR"]<-"1"
+reg_multi_bdd$Secteur_lycee[reg_multi_bdd$Secteur_lycee=="PU"]<-"0"
+reg_multi_bdd[, 1] <- as.numeric(reg_multi_bdd[, 1])
+
+# [5] Estimation des paramètres explicatives
+reg_multi <- lm(Reussite_Total ~ ., data=reg_multi_bdd)
+summary(reg_multi)
+
+hist(resid(reg_multi), col="grey", main="")
+```
 
