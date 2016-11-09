@@ -246,13 +246,9 @@ On peut ainsi estimer qu'un environnement où une filière a un taux de réussit
 
 ## Est ce que le taux de réussite des élèves en terminale S s'explique par la localisation des communes ?
 
-<<<<<<< 020b75ada2fa091a8a3338cc837fbd331950abaf
-Nous cherchons à savoir ici sur le fait qu'un étudiant inscrit au baccalauréat d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique.
-=======
 ### Problématique
 
 Nous cherchons à savoir ici si le fait qu'un étudiant inscrit au baccalauréat d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique.
->>>>>>> 9e90d9a087cc4bc4c76b42b31d5b3467a92c609d
 
 ### Déroulement du test
 
@@ -397,82 +393,13 @@ chisq.test(chideuxData)
 
 Ce test d'indépendance par khi deux nous démontre qu'il y a dependance entre la taille de l'effectif et le taux de réussite en serie S. Un étudiant a donc plus de chance de réussir dans une grande ville. (P-value infiniment petite.)
 
-
-#Regression simple
-
-```{r, include=FALSE}
-# initialisation des données pour cecile
-bdd_complet <- read.csv2(file="geoducation-data2_cecile.csv", sep=";", header=TRUE, na.strings = "")
-```
+#Regression multiple (faut renommer ce titre en un truc de comrpéhensible)
 
 
-La régression linéaire simple est une méthode statistique permettant de modéliser la relation linéaire entre 2 variables quantitatives.
-Nous effectuerons notre régression linéaire sur 2 variables : 
-- le taux de réussite (variable à expliquer)
-- les effectifs
-
-Nous souhaitons analyser la relation entre le taux de réussite d'un établissement au baccalauréat (exprimé en pourcentage) et son effectif.
-
+TODO : EXPLIQUER LE CODE PARCE QUE RIEN N'EST EXPIQUÉ
 ```{r}
 # [1] Extraction des champs qui nous interessent
-chu_reg_simple_extrac_data = bdd_complet[, c('Etablissement','Code.Etablissement','Effectif.Présents.Total.séries','Taux.Brut.de.réussite.Total.séries')]
-
-# [2] Renommage des colonnes
-names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Etablissement"] <- "Nom_lycee"
-names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Code.Etablissement"] <- "Code_lycee"
-names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Effectif.Présents.Total.séries"] <- "Effectif_lycee"
-names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Taux.Brut.de.réussite.Total.séries"] <- "Taux_reussite"
-
-# [3] Copie de l'extraction pour travailler dessus
-chu_reg_simple_bdd = chu_reg_simple_extrac_data 
-
-# [4] Nettoyage des données
-# suppression des lignes contenant des NA
-chu_reg_simple_bdd <- na.omit(chu_reg_simple_bdd)
-# conversion pour la reconnaissance des variables QUANTI
-for (i in 3:ncol(chu_reg_simple_bdd)) {
-  chu_reg_simple_bdd[, i] <- as.numeric(as.character(chu_reg_simple_bdd[, i]))
-}
-# visualisation générale des données
-str(chu_reg_simple_bdd)
-summary(chu_reg_simple_bdd)
-plot(Taux_reussite ~ Effectif_lycee, data=chu_reg_simple_bdd)
-
-# [5] Estimation du paramètre Effectif_lycee
-# regression linéaire : nuage de points + droite de regression
-chu_reg_simple <- lm(Taux_reussite ~ Effectif_lycee, data=chu_reg_simple_bdd)
-summary(chu_reg_simple)
-chu_reg_simple
-abline(chu_reg_simple, col = 'red')
-# affichage de l'équation de la droite de régression
-title("Nuage de points & droite de regression")
-text(400, 50, as.expression(substitute(y==b+a*x, list(
-  a=round(chu_reg_simple$coefficients[2],3),
-  b=round(chu_reg_simple$coefficients[1],3)
-))), col = 'red')
-```
-
-Chaque point représente pour un lycée donné, l'effectif de l'établissement et son taux de réussite au baccalauréat.
-On remarque que la liaison entre les effectifs et le taux de réussite ne semble pas être linéaire.
-
-\textcolor{red}{Rédaction à revoir et améliorer}
-
-Std.Error = 0.251276 : Ecart-type associé à l'estimation des effectifs est petite, ce qui signifie un gage de stabilité du modèle et donc du pouvoir prédictif (valeur de b stable)
-Residual standard error = 6.122 : Estimateur de l'écart-type résiduel est faible donc bon pouvoir prédictif mais DDL à 2286
-Multiple R-squared = 0.007084 : coeff de corrélation (% de variations expliquées par le modèle), R² doit être proche de 1 pour bon pouvoir explicatif
-
-Le modèle n'a pas un bon pouvoir explicatif sur les données : R²=0.007084
-Le pouvoir prédictif risque d'être entaché par l'instabilité du coefficient b et une variance résiduelle importante
-
-```{r}
-
-```
-
-#Regression multiple
-
-```{r}
-# [1] Extraction des champs qui nous interessent
-chu_reg_multi_extrac_data = bdd_complet[, c(
+reg_multi_extrac_data = bdd[, c(
   'Secteur.Public.PU.Privé.PR',
   'Sructure.p.dagogique.en.7.groupes',
   'Effectif.Présents.série.L',
@@ -487,7 +414,7 @@ chu_reg_multi_extrac_data = bdd_complet[, c(
 )]
 
 # [2] Renommage des colonnes
-names(chu_reg_multi_extrac_data) <- c(
+names(reg_multi_extrac_data) <- c(
   'Secteur_lycee',
   'Sructure_lycee',
   'Effectif_L',
@@ -502,35 +429,35 @@ names(chu_reg_multi_extrac_data) <- c(
 )
 
 # [3] Copie de l'extraction pour travailler dessus
-chu_reg_multi_bdd = chu_reg_multi_extrac_data
-str(chu_reg_multi_bdd)
+reg_multi_bdd = reg_multi_extrac_data
+str(reg_multi_bdd)
 
 # [4] Nettoyage des données
 # on ne s'interesse que aux données des établissements avec uniquement des filières généraux
-chu_reg_multi_bdd <- subset(chu_reg_multi_bdd, Sructure_lycee == "A")
+reg_multi_bdd <- subset(reg_multi_bdd, Sructure_lycee == "A")
 # suppression des lignes contenant des NA
-chu_reg_multi_bdd <- na.omit(chu_reg_multi_bdd)
+reg_multi_bdd <- na.omit(reg_multi_bdd)
 # suppression des colonnes non utilisées pour la regression
-chu_reg_multi_bdd <- chu_reg_multi_bdd[,-2]
+reg_multi_bdd <- reg_multi_bdd[,-2]
 # conversion pour la reconnaissance des variables QUANTI
-for (i in 2:ncol(chu_reg_multi_bdd)) {
-  chu_reg_multi_bdd[, i] <- as.numeric(as.character(chu_reg_multi_bdd[, i]))
+for (i in 2:ncol(reg_multi_bdd)) {
+  reg_multi_bdd[, i] <- as.numeric(as.character(reg_multi_bdd[, i]))
 }
 # remplacement de la variable quali en quanti
-chu_reg_multi_bdd[, 1] <- as.character(chu_reg_multi_bdd[, 1])
-chu_reg_multi_bdd$Secteur_lycee[chu_reg_multi_bdd$Secteur_lycee=="PR"]<-"1"
-chu_reg_multi_bdd$Secteur_lycee[chu_reg_multi_bdd$Secteur_lycee=="PU"]<-"0"
-chu_reg_multi_bdd[, 1] <- as.numeric(chu_reg_multi_bdd[, 1])
+reg_multi_bdd[, 1] <- as.character(reg_multi_bdd[, 1])
+reg_multi_bdd$Secteur_lycee[reg_multi_bdd$Secteur_lycee=="PR"]<-"1"
+reg_multi_bdd$Secteur_lycee[reg_multi_bdd$Secteur_lycee=="PU"]<-"0"
+reg_multi_bdd[, 1] <- as.numeric(reg_multi_bdd[, 1])
 
 # [5] Estimation des paramètres explicatives
-chu_reg_multi <- lm(Reussite_Total ~ ., data=chu_reg_multi_bdd)
-summary(chu_reg_multi)
+reg_multi <- lm(Reussite_Total ~ ., data=reg_multi_bdd)
+summary(reg_multi)
 ```
 R² = 97% donc le modèle est précis
 Nous avons 97% de la variance du taux de réussite qui peut être expliquée par les variations de ... 
 ```{r}
-#chu_reg_multi
-hist(resid(chu_reg_multi), col="grey", main="")
+#reg_multi
+hist(resid(reg_multi), col="grey", main="")
 ```
 
 Conclusion en cours de rédaction
