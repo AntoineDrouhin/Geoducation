@@ -12,14 +12,14 @@ if (!is.null(WD)) setwd(WD)
 \textit{Antoine Drouhin, Aurélien Garret, Cécile Hu, Lucas Morel}
 \end{center}
 # TODO, Note/CR de Réunion avec la prof :
-* décrire la base de données : taille, variable quanti ou quali (à faire pour la présentation orale)
+* décrire la base de données : taille, variable quantitatif ou qualitatif (à faire pour la présentation orale)
 * Ségrégation scolaire
 * Idée :
-  * Essayer de faire une classif sur les différents tx de réussite et les filières (pas étonné qu'en ts gros tx de réussite, qu'en L non etc,...) Essayer de voir pourquoi meilleur on est meilleur on sera et vice versa.
-  * Choisir un indcateur de réussite, créer un indictauer en addtionnant les tx de réussite par lycée, puis régréssion pouvoir si dépend de la filière et de la géographie.
-  * Secteur pivéé/public
+  * Essayer de faire une classification sur les différents taux de réussite et les filières (pas étonné qu'en ts gros tx de réussite, qu'en L non etc,...) Essayer de voir pourquoi meilleur on est meilleur on sera et vice versa.
+  * Choisir un indicateur de réussite, créer un indicateur en additionnant les taux de réussite par lycée, puis régression pouvoir si dépend de la filière et de la géographie.
+  * Secteur privé/public
   * Rural/urbain
-  * Puis régréssion synthétique
+  * Puis régression synthétique
   * Cherche taille des communes pour joindre
 
 
@@ -27,15 +27,15 @@ if (!is.null(WD)) setwd(WD)
 
 ### Base de données
 
-Notre de base de données à été trouvée sur le site Data.gouv. 
-Nous avons croisé deux jeux de données distincts. Le premier concerne des données sur la performance des lycées en France (taux de réussite etc). Le second présente des données géographiques pour l’ensemble des établissement scolaires francais (Coordonnées GPS, etc.).
+Notre de base de données a été trouvée sur le site Data.gouv. 
+Nous avons croisé deux jeux de données distincts. Le premier concerne des données sur la performance des lycées en France (taux de réussite etc). Le second présente des données géographiques pour l’ensemble des établissements scolaires français (Coordonnées GPS, etc.).
 
 <https://www.data.gouv.fr/fr/>
 
 Nous avons choisi cette base car elle présente une approche intéressante sur la compréhension d’un sujet qui nous concerne tous, l’éducation.
-L’approche géographique des question de réussite scolaire nous a semblé être un champs suffisamment complet pour permettre l’utilisation des méthodes d’analyse vue en cours.
+L’approche géographique des questions de réussite scolaire nous a semblé être un champ suffisamment complet pour permettre l’utilisation des méthodes d’analyse vue en cours.
 
-La base de données comporte de nombreuses données qui sont réparties sur toutes la France. Nous avons des répartitions de données par établissements, villes, départements et académies. Par ailleurs l'ensemble des bac généraux et technologique ainsi que certains bac professionnels sont représentés. 
+La base de données comporte de nombreuses données qui sont réparties sur toutes la France. Nous avons des répartitions de données par établissements, villes, départements et académies. Par ailleurs l'ensemble des bacs généraux et technologiques ainsi que certains bacs professionnels sont représentés. 
 ```{r, include=FALSE}
 
 read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
@@ -78,14 +78,14 @@ lbls <- tableRes[,1]
 ```{r}
 print(pie(slices, labels = lbls, main="Répartition des effectifs par académie"))
 ```
-L'intérêt et le questionnement général porte sur la réussite scolaire de la France en fonction de la position géographique des établissements scolaires. Y’a t-il une corrélation entre la situation géographique des établissements et la réussite scolaire des étudiants ?
+L'intérêt et le questionnement général porte sur la réussite scolaire de la France en fonction de la position géographique des établissements scolaires. Y a-t-il une corrélation entre la situation géographique des établissements et la réussite scolaire des étudiants ?
 
 Plusieurs problématiques en découlent comme :
 
-Y’a t-il des différences de réussites entre le top 10 des grandes villes en France et les villes de province ?
+Y a-t-il des différences de réussites entre le top 10 des grandes villes en France et les villes de province ?
 Paris bénéficie-t-elle d’une réussite supérieure au reste de la France ?
-Quelles régions de France semble réussir mieux que les autres ?
-#### Initialisation de la base de donnée
+Quelles régions de France semblent réussir mieux que les autres ?
+#### Initialisation de la base de données
 
 ```{r}
 read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
@@ -123,7 +123,7 @@ for(i in 1:nrow(bddKhiDeux)){
 print(tableKhiDeux)
 ```
 
-On dispose ici de la table de départ pour calculer le KhiDeux. Cette table nous donne l'agrégation des effectifs par Filiaire et par Académie.
+On dispose ici de la table de départ pour calculer le Khi Deux. Cette table nous donne l'agrégation des effectifs par filière et par académie.
 
 ```{r}
 # Calcul de la table des Abstrait
@@ -135,7 +135,7 @@ for(i in 1:nrow(abstraitKhiDeux)){
   abstraitKhiDeux$L[i] = sum(tableKhiDeux$L)*sum(tableKhiDeux[i,'ES'],tableKhiDeux[i,'S'],tableKhiDeux[i,'L'])/sum(tableKhiDeux$ES,tableKhiDeux$S,tableKhiDeux$L)
 }
 
-#Calcul de la table des ecarts
+#Calcul de la table des écarts
 ecartsKhiDeux <- tableKhiDeux
 
 for(i in 1:nrow(abstraitKhiDeux)){
@@ -144,7 +144,7 @@ for(i in 1:nrow(abstraitKhiDeux)){
   ecartsKhiDeux$L[i] = tableKhiDeux$L[i] - abstraitKhiDeux$L[i]
 }
 
-#Caclul de la table des contributions
+#Calcul de la table des contributions
 contribKhiDeux <- tableKhiDeux
 i=1
 for(i in 1:nrow(abstraitKhiDeux)){
@@ -157,39 +157,39 @@ print(contribKhiDeux)
 
 ```
 
-Ici nous avons appliqué les étapes successives permettant de calculer le KhiDeux. Soit la corrélation entre les deux variables qualitatives : Académies et Filliaires.
+Ici nous avons appliqué les étapes successives permettant de calculer le Khi Deux. Soit la corrélation entre les deux variables qualitatives : Académies et Filière.
 
-Sur la table des contributions(ci-dessus) on peut observer que certaines régions et séries ont une contribution fortes a rendre dépendante ces deux variables.
+Sur la table des contributions (ci-dessus) on peut observer que certaines régions et séries ont une contribution fortes à rendre dépendante ces deux variables.
 
-On peut constater que certaines académies correspondantes a des zones géographiques périphériques ont une influance forte sur le khiDeux. Mayotte, Corse et Guadeloupe notamment. Dans ces régions la répartition entre les filières est modifiées et on trouve notamment une plus grande proportions de personnes en filiére Litéraire.
+On peut constater que certaines académies correspondantes a des zones géographiques périphériques ont une influence forte sur le khi Deux. Mayotte, Corse et Guadeloupe notamment. Dans ces régions la répartition entre les filières est modifiées et on trouve notamment une plus grande proportion de personnes en filière Littéraire.
 
-Certaines académies de métropoles ont également des comportement particulier, par exemple l'académie de Versailles a une proportion particulièrement forte de ES et faible de L. Les académies de Limoges, montpellier et Strasbourg ont également des comportement qui s'écartent des standards.
+Certaines académies de métropoles ont également des comportements particulier, par exemple l'académie de Versailles a une proportion particulièrement forte de ES et faible de L. Les académies de Limoges, Montpellier et Strasbourg ont également des comportements qui s'écartent des standards.
 
-On constate finallement que la proportion de filliaire L a une forte tendance a varier alors que les filliaires ES et S ont souvent une proportions stable l'une par rapport à l'autre (environs un peux moins de deux fois plus de S que de ES). Ainsi de nombreuses académies ont une proportion de L élevée (Domtom etc..) ou faible (Lyon, Lille, Strasbourg etc..)
+On constate finalement que la proportion de filière L a une forte tendance à varier alors que les filières ES et S ont souvent une proportion stable l'une par rapport à l'autre (environs un peu moins de deux fois plus de S que de ES). Ainsi de nombreuses académies ont une proportion de L élevée (DOM-TOM etc..) ou faible (Lyon, Lille, Strasbourg etc..)
 
-Finallement on calcule le score global de khideux
+Finalement on calcule le score global de khi deux
 
 ```{r}
 khideux <- chisq.test(tableKhiDeux[,c('S','ES','L')])
 print(khideux)
 ```
 
-Cet indicateur nous permet de dire que la situation géograpique est certainement fortement dépendante de la répartition entre les filliaires.
-En effet la probabilité que la situation géographique soit indépendante de la répartition dans les différentes filiéres est inférieure à 2.2e-16.
+Cet indicateur nous permet de dire que la situation géographique est certainement fortement dépendante de la répartition entre les filières.
+En effet la probabilité que la situation géographique soit indépendante de la répartition dans les différentes filières est inférieure à 2.2e-16.
 
-# Régréssion
-## Est ce que le taux de réussite des èlèves en terminale S s'explique par la localisation académique ?
+# Régression
+## Est ce que le taux de réussite des élèves en terminale S s'explique par la localisation académique ?
 ### Problématique
 
-Une interrogation récurrente vis à vis de la réussite scolaire est de se demander si la situation géographique d'un étudiant tend à lui offrir des chances supplémentaire d'obtenir son baccalauréat. 
+Une interrogation récurrente vis à vis de la réussite scolaire est de se demander si la situation géographique d'un étudiant tend à lui offrir des chances supplémentaires d'obtenir son baccalauréat. 
 
-Pour essayer de déterminer si l'acadamie a un rôle prédominant dans la réussite de l'élève nous allons chercher à connaitre l'impact de l'académie sur le taux de réussite au bac S, mais nous nous interrogerons aussi sur l'influence émise par les taux de réussite au baccalauréat L. Ainsi, un environnement, crée par la jointure entre une situation géographique donnée et un taux de réussite dans une autre fillière donné, a-t-il un fort impact sur la réussite d'un éléve passant son baccalauréat scientifique ?
+Pour essayer de déterminer si l'académie a un rôle prédominant dans la réussite de l'élève nous allons chercher à connaitre l'impact de l'académie sur le taux de réussite au bac S, mais nous nous interrogerons aussi sur l'influence émise par les taux de réussite au baccalauréat L. Ainsi, un environnement, crée par la jointure entre une situation géographique donnée et un taux de réussite dans une autre filière donné, a-t-il un fort impact sur la réussite d'un élève passant son baccalauréat scientifique ?
 
-Ainsi, nous allons crée une matrice comportant l'académie, l'effectif présent en série scientifique, le taux brut de réussite dans cette même série et le taux dans la série L. 
+Ainsi, nous allons créer une matrice comportant l'académie, l'effectif présent en série scientifique, le taux brut de réussite dans cette même série et le taux dans la série L. 
 ```{r}
 bddReg = bdd[, c('Académie','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
 ```
-Nous procédons ensuite au nettoyage de notre matrice en retirant les valeurs nulles et en transformant les taux à une forme 0<x<1.De plus nous retirons les valeurs aberrantes, soit celles où il n'y a pas d'éléve inscrit dans les fillières étudiées.  
+Nous procédons ensuite au nettoyage de notre matrice en retirant les valeurs nulles et en transformant les taux à une forme 0<x<1.De plus nous retirons les valeurs aberrantes, soit celles où il n'y a pas d'élève inscrit dans les filières étudiées.  
 ```{r}
 #valeur non définies mise à 0
 bddReg[is.na(bddReg)] <- 0
@@ -210,7 +210,7 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Aca
 regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Académie), FUN=mean)[2])
 
 ```
-Nous créeons maitenant notre model linéaire et nous allons procéder à la regression. 
+Nous créons maintenant notre model linéaire et nous allons procéder à la régression. 
 ```{r}
 #création du modèle 
 df = data.frame(regData[1], regData[2], regData[3], regData[4])
@@ -221,11 +221,11 @@ model<-lm(df$TxRéussiteS~df$Effectif+df$TxRéussiteL, data = df)
 summary(model)
 ```
 ### Analyse
-On constate que la valeur de R carré est élevé impliquant que le modéle a une importance sur le taux de réussite, selon une p-value extrémement faible (5.02e-08) soit une précision de 1 sur 1 milliard. 
+On constate que la valeur de R carré est élevée impliquant que le modèle a une importance sur le taux de réussite, selon une p-value extrêmement faible (5.02e-08) soit une précision de 1 sur 1 milliard. 
 Cependant nous pouvons aussi observer que les deux variables utilisées n'ont pas le même impact sur notre résultat. 
 En effet, l'effectif semble avoir un faible impact (-5.343e-08), tandis que le Taux de réussite en série L a un impact fort (5.170e-01).
 
-Nous pouvons représenter l'impact de l'effectif par le nuage de point suivant, et nous constatons que la droite de la fonction de regression 
+Nous pouvons représenter l'impact de l'effectif par le nuage de point suivant, et nous constatons que la droite de la fonction de régression 
 ```{r}
 plot(df$Effectif,df$TxRéussiteS)
 x <- seq(0,18000)
@@ -233,7 +233,7 @@ lines(x,x*-5.343e-08+4.434e-01,col="red")
 
 ```
 
-Nous pouvons représenter l'impact du taux de réussite de la série L par le nuage de points suivant, et nous constatons que la droite de la fonction de regression montre une augmentation forte. 
+Nous pouvons représenter l'impact du taux de réussite de la série L par le nuage de points suivant, et nous constatons que la droite de la fonction de régression montre une augmentation forte. 
 ```{r}
 plot(df$TxRéussiteL,df$TxRéussiteS)
 x <- seq(0,18000)
@@ -243,11 +243,11 @@ lines(x,x*5.170e-01+4.434e-01,col="red")
 ### Conclusion 
 
 Ainsi, selon notre étude de donnée nous pouvons affirmer que l'environnement a un impact sur la réussite d'un élève, mais ce n'est pas la localisation qui crée cette empreinte mais la réussite des paires dans une série différente est-elle un facteur déterminant. 
-On peut ainsi estimer qu'un environnement où une fillière a un taux de réussite élevé impactera bénéfiquement les chances de réussite d'un élève. 
+On peut ainsi estimer qu'un environnement où une filière a un taux de réussite élevé impactera de manière positive les chances de réussite d'un élève. 
 
-## Est ce que le taux de réussite des èlèves en terminale S s'explique par la localisation des communes ?
+## Est ce que le taux de réussite des élèves en terminale S s'explique par la localisation des communes ?
 
-Nous cherchons à savoir ici su le fait qu'un étudiant inscrit au baccalauréat d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique.
+Nous cherchons à savoir ici sur le fait qu'un étudiant inscrit au baccalauréat d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique.
 
 La première étape de ce cas de test réunie dans une nouvelle matrice, les colonnes "Ville", "Effectif.Présents.série.S" et "Taux.Brut.de.réussite.série.S". Nous allons tenter d'expliquer par la suite le taux de réussite de chaque ville par les effectifs inscrit dans ces mêmes localisations.
 
@@ -256,7 +256,7 @@ La première étape de ce cas de test réunie dans une nouvelle matrice, les col
 bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
 ```
 
-Maintenant que nous disposons des données propre à l'étude de ce cas, nous avons besoin de nettoyer les données. Il faut notemment mettre des valeurs nulles dans les champs non remplis et ramèner le taux à des valeurs comprises entre 0 et 1.
+Maintenant que nous disposons des données propres à l'étude de ce cas, nous avons besoin de nettoyer les données. Il faut notamment mettre des valeurs nulles dans les champs non remplis et ramèner le taux à des valeurs comprises entre 0 et 1.
 
 ```{r}
 # Permet de mettre 0 dans les cases non remplies
@@ -266,7 +266,7 @@ bddReg[3] <- bddReg[3]/100
 bddReg[4] <- bddReg[4]/100
 ```
 
-Pour palier à des villes où aucun candidat ne serait inscrit dans la série S, nous supprimons volontairement ces enregistrements qui sont considérés comme des individus abérants pour notre études. C'est ce que fait la portion de code suivante.
+Pour pallier à des villes où aucun candidat ne serait inscrit dans la série S, nous supprimons volontairement ces enregistrements qui sont considérés comme des individus aberrants pour notre étude. C'est ce que fait la portion de code suivante.
 
 ```{r}
 df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
@@ -284,7 +284,7 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Vil
 regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Ville), FUN=mean)[2])
 ```
 
-On peut donc maintenant s'apercevoir de la repartition du taux de réussite S en fonction des effectifs par ville.
+On peut donc maintenant s'apercevoir de la répartition du taux de réussite S en fonction des effectifs par ville.
 
 ```{r}
 df = data.frame(regData[1], regData[2], regData[3], regData[4])
@@ -294,7 +294,7 @@ plot(df$EffectifS,df$TxRéussiteS)
 ```
 
 
-Nous allons donc effectuer une régréssion linéaire sur ces données pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat.
+Nous allons donc effectuer une régression linéaire sur ces données pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat.
 ```{r}
 model<-lm(df$TxRéussiteS~df$EffectifS + df$TxRéussiteL, data = df)
 summary(model)
@@ -303,9 +303,9 @@ summary(model)
 
 On s'aperçoit que l'effectif explique peu le taux de réussite. En effet, pour une unité du taux de réussite, l'effectif change de 2.741e-05 ce qui est très petit.
 
-Le R carré ajusté en tendant vers 0 ( adjusted R sqare = 0.005677) nous indique aussi que l'effectif explique faiblement le taux de réussite avec environ 7 chance sur 1000 de se tromper donc cette prédiction est plutot forte (p-value = 0.007613).
+Le R carré ajusté en tendant vers 0 (adjusted R sqare = 0.005677) nous indique aussi que l'effectif explique faiblement le taux de réussite avec environ 7 chance sur 1000 de se tromper donc cette prédiction est plutôt forte (p-value = 0.007613).
 
-En traçant la droite ax + b correspondant au modèle (2.741e-05*x + 6.171e-01), on remarque sa faible pente et sa répresentation plutot horizontale ce qui indique aussi par le visuel un faible lien.
+En traçant la droite ax + b correspondant au modèle (2.741e-05*x + 6.171e-01), on remarque sa faible pente et sa représentation plutôt horizontale ce qui indique aussi par le visuel un faible lien.
 
 ```{r}
 plot(df$EffectifS,df$TxRéussiteS)
@@ -313,7 +313,7 @@ x <- seq(0,2300)
 lines(x,x*2.741e-05+6.171e-01,col="red")
 ```
 
-En revanche pour le taux de réussite des séries L explique encore une fois le taux de réussite des séries S. On peut imaginer que le niveau général d'une ville irradie de L en S. Ce lien exuste avec un R carré adjusté de 0.1533 avec une p-value infinitesimalement petite. Il y a donc quasiement aucune chance de se tromper sur ce point.
+En revanche pour le taux de réussite des séries L explique encore une fois le taux de réussite des séries S. On peut imaginer que le niveau général d'une ville irradie de L en S. Ce lien existe avec un R carré ajusté de 0.1533 avec une p-value infinitésimalement petite. Il y a donc quasiment aucune chance de se tromper sur ce point.
 
 A titre informatif voici la droite du modèle qui représente ce lien :
 ```{r}
@@ -321,5 +321,142 @@ plot(df$TxRéussiteL,df$TxRéussiteS)
 x <- seq(0,1)
 lines(x,x*3.228e-01+6.171e-01,col="red")
 ```
+
+
+```{r, include=FALSE}
+# initialisation des données pour cecile
+bdd_complet <- read.csv2(file="geoducation-data2_cecile.csv", sep=";", header=TRUE, na.strings = "")
+```
+
+#Regression simple
+
+La régression linéaire simple est une méthode statistique permettant de modéliser la relation linéaire entre 2 variables quantitatives.
+Nous effectuerons notre régression linéaire sur 2 variables : 
+- le taux de réussite (variable à expliquer)
+- les effectifs
+
+Nous souhaitons analyser la relation entre le taux de réussite d'un établissement au baccalauréat (exprimé en pourcentage) et son effectif.
+
+```{r}
+# [1] Extraction des champs qui nous interessent
+chu_reg_simple_extrac_data = bdd_complet[, c('Etablissement','Code.Etablissement','Effectif.Présents.Total.séries','Taux.Brut.de.réussite.Total.séries')]
+
+# [2] Renommage des colonnes
+names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Etablissement"] <- "Nom_lycee"
+names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Code.Etablissement"] <- "Code_lycee"
+names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Effectif.Présents.Total.séries"] <- "Effectif_lycee"
+names(chu_reg_simple_extrac_data)[names(chu_reg_simple_extrac_data)=="Taux.Brut.de.réussite.Total.séries"] <- "Taux_reussite"
+
+# [3] Copie de l'extraction pour travailler dessus
+chu_reg_simple_bdd = chu_reg_simple_extrac_data 
+
+# [4] Nettoyage des données
+# suppression des lignes contenant des NA
+chu_reg_simple_bdd <- na.omit(chu_reg_simple_bdd)
+# conversion pour la reconnaissance des variables QUANTI
+for (i in 3:ncol(chu_reg_simple_bdd)) {
+  chu_reg_simple_bdd[, i] <- as.numeric(as.character(chu_reg_simple_bdd[, i]))
+}
+# visualisation générale des données
+str(chu_reg_simple_bdd)
+summary(chu_reg_simple_bdd)
+plot(Taux_reussite ~ Effectif_lycee, data=chu_reg_simple_bdd)
+
+# [5] Estimation du paramètre Effectif_lycee
+# regression linéaire : nuage de points + droite de regression
+chu_reg_simple <- lm(Taux_reussite ~ Effectif_lycee, data=chu_reg_simple_bdd)
+summary(chu_reg_simple)
+chu_reg_simple
+abline(chu_reg_simple, col = 'red')
+# affichage de l'équation de la droite de régression
+title("Nuage de points & droite de regression")
+text(400, 50, as.expression(substitute(y==b+a*x, list(
+  a=round(chu_reg_simple$coefficients[2],3),
+  b=round(chu_reg_simple$coefficients[1],3)
+))), col = 'red')
+```
+
+Chaque point représente pour un lycée donné, l'effectif de l'établissement et son taux de réussite au baccalauréat.
+On remarque que la liaison entre les effectifs et le taux de réussite ne semble pas être linéaire.
+
+\textcolor{red}{Rédaction à revoir et améliorer}
+
+Std.Error = 0.251276 : Ecart-type associé à l'estimation des effectifs est petite, ce qui signifie un gage de stabilité du modèle et donc du pouvoir prédictif (valeur de b stable)
+Residual standard error = 6.122 : Estimateur de l'écart-type résiduel est faible donc bon pouvoir prédictif mais DDL à 2286
+Multiple R-squared = 0.007084 : coeff de corrélation (% de variations expliquées par le modèle), R² doit être proche de 1 pour bon pouvoir explicatif
+
+Le modèle n'a pas un bon pouvoir explicatif sur les données : R²=0.007084
+Le pouvoir prédictif risque d'être entaché par l'instabilité du coefficient b et une variance résiduelle importante
+
+```{r}
+
+```
+
+#Regression multiple
+
+```{r}
+# [1] Extraction des champs qui nous interessent
+chu_reg_multi_extrac_data = bdd_complet[, c(
+  'Secteur.Public.PU.Privé.PR',
+  'Sructure.p.dagogique.en.7.groupes',
+  'Effectif.Présents.série.L',
+  'Effectif.Présents.série.ES', 
+  'Effectif.Présents.série.S', 
+  'Taux.Brut.de.réussite.série.L', 
+  'Taux.Brut.de.réussite.série.ES',
+  'Taux.Brut.de.réussite.série.S',
+  'Taux.Brut.de.réussite.Total.séries',
+  'Taux.accés.Brut.premi.re.BAC',
+  'Taux.accés.Brut.terminale.BAC'
+)]
+
+# [2] Renommage des colonnes
+names(chu_reg_multi_extrac_data) <- c(
+  'Secteur_lycee',
+  'Sructure_lycee',
+  'Effectif_L',
+  'Effectif_ES', 
+  'Effectif_S', 
+  'Reussite_L', 
+  'Reussite_ES',
+  'Reussite_S',
+  'Reussite_Total',
+  'Acces_prem_BAC',
+  'Acces_term_BAC'
+)
+
+# [3] Copie de l'extraction pour travailler dessus
+chu_reg_multi_bdd = chu_reg_multi_extrac_data
+str(chu_reg_multi_bdd)
+
+# [4] Nettoyage des données
+# on ne s'interesse que aux données des établissements avec uniquement des filières généraux
+chu_reg_multi_bdd <- subset(chu_reg_multi_bdd, Sructure_lycee == "A")
+# suppression des lignes contenant des NA
+chu_reg_multi_bdd <- na.omit(chu_reg_multi_bdd)
+# suppression des colonnes non utilisées pour la regression
+chu_reg_multi_bdd <- chu_reg_multi_bdd[,-2]
+# conversion pour la reconnaissance des variables QUANTI
+for (i in 2:ncol(chu_reg_multi_bdd)) {
+  chu_reg_multi_bdd[, i] <- as.numeric(as.character(chu_reg_multi_bdd[, i]))
+}
+# remplacement de la variable quali en quanti
+chu_reg_multi_bdd[, 1] <- as.character(chu_reg_multi_bdd[, 1])
+chu_reg_multi_bdd$Secteur_lycee[chu_reg_multi_bdd$Secteur_lycee=="PR"]<-"1"
+chu_reg_multi_bdd$Secteur_lycee[chu_reg_multi_bdd$Secteur_lycee=="PU"]<-"0"
+chu_reg_multi_bdd[, 1] <- as.numeric(chu_reg_multi_bdd[, 1])
+
+# [5] Estimation des paramètres explicatives
+chu_reg_multi <- lm(Reussite_Total ~ ., data=chu_reg_multi_bdd)
+summary(chu_reg_multi)
+```
+R² = 97% donc le modèle est précis
+Nous avons 97% de la variance du taux de réussite qui peut être expliquée par les variations de ... 
+```{r}
+#chu_reg_multi
+hist(resid(chu_reg_multi), col="grey", main="")
+```
+
+Conclusion en cours de rédaction
 
 #Conclusion Générale
