@@ -25,6 +25,8 @@ Nous avons choisi cette base car elle présente une approche intéressante sur l
 L’approche géographique des questions de réussite scolaire nous a semblé être un champ suffisamment complet pour permettre l’utilisation des méthodes d’analyse vue en cours.
 
 La base de données comporte de nombreuses données qui sont réparties sur toutes la France. Nous avons des répartitions de données par établissements, villes, départements et académies. Par ailleurs l'ensemble des bacs généraux et technologiques ainsi que certains bacs professionnels sont représentés. 
+
+
 ```{r, echo=FALSE}
 
 read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encoding = "UTF-8")->bdd
@@ -174,11 +176,16 @@ Une interrogation récurrente vis à vis de la réussite scolaire est de se dema
 
 Pour essayer de déterminer si l'académie a un rôle prédominant dans la réussite de l'élève nous allons chercher à connaitre l'impact de l'académie sur le taux de réussite au bac S, mais nous nous interrogerons aussi sur l'influence émise par les taux de réussite au baccalauréat L. Ainsi, un environnement, crée par la jointure entre une situation géographique donnée et un taux de réussite dans une autre filière donné, a-t-il un fort impact sur la réussite d'un élève passant son baccalauréat scientifique ?
 
+
+### Déroulement du test
+
 Ainsi, nous allons créer une matrice comportant l'académie, l'effectif présent en série scientifique, le taux brut de réussite dans cette même série et le taux dans la série L. 
+
 ```{r echo=FALSE}
 bddReg = bdd[, c('Académie','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
 ```
 Nous procédons ensuite au nettoyage de notre matrice en retirant les valeurs nulles et en transformant les taux à une forme 0<x<1.De plus nous retirons les valeurs aberrantes, soit celles où il n'y a pas d'élève inscrit dans les filières étudiées.  
+
 ```{r echo=FALSE}
 #valeur non définies mise à 0
 bddReg[is.na(bddReg)] <- 0
@@ -199,7 +206,7 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Aca
 regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Académie), FUN=mean)[2])
 
 ```
-Nous créons maintenant notre model linéaire et nous allons procéder à la régression. 
+Nous créerons ensuite notre model linéaire et nous procéderons à la régression. 
 ```{r echo=FALSE}
 #création du modèle 
 df = data.frame(regData[1], regData[2], regData[3], regData[4])
@@ -209,12 +216,15 @@ model<-lm(df$TxRéussiteS~df$Effectif+df$TxRéussiteL, data = df)
 #affichage des résultats
 summary(model)
 ```
+
 ### Analyse
-On constate que la valeur de R carré est élevée impliquant que le modèle a une importance sur le taux de réussite, selon une p-value extrêmement faible (5.02e-08) soit une précision de 1 sur 1 milliard. 
+
+Nous constatons que la valeur de R carré est élevée, impliquant que le modèle a une importance sur le taux de réussite, selon une p-value extrêmement faible (5.02e-08) soit une précision de 1 sur 1 milliard. 
 Cependant nous pouvons aussi observer que les deux variables utilisées n'ont pas le même impact sur notre résultat. 
 En effet, l'effectif semble avoir un faible impact (-5.343e-08), tandis que le Taux de réussite en série L a un impact fort (5.170e-01).
 
-Nous pouvons représenter l'impact de l'effectif par le nuage de point suivant, et nous constatons que la droite de la fonction de régression 
+Nous pouvons représenter l'impact de l'effectif par le nuage de point suivant, et nous constatons que la droite de la fonction de régression représente une augmentation extrémement faible. 
+
 ```{r echo=FALSE}
 plot(df$Effectif,df$TxRéussiteS)
 x <- seq(0,18000)
@@ -222,6 +232,7 @@ lines(x,x*-5.343e-08+4.434e-01,col="red")
 ```
 
 Nous pouvons représenter l'impact du taux de réussite de la série L par le nuage de points suivant, et nous constatons que la droite de la fonction de régression montre une augmentation forte. 
+
 ```{r echo=FALSE}
 plot(df$TxRéussiteL,df$TxRéussiteS)
 x <- seq(0,18000)
@@ -230,8 +241,8 @@ lines(x,x*5.170e-01+4.434e-01,col="red")
 
 ### Conclusion 
 
-Ainsi, selon notre étude de donnée nous pouvons affirmer que l'environnement a un impact sur la réussite d'un élève, mais ce n'est pas la localisation qui crée cette empreinte mais la réussite des paires dans une série différente est-elle un facteur déterminant. 
-On peut ainsi estimer qu'un environnement où une filière a un taux de réussite élevé impactera de manière positive les chances de réussite d'un élève. 
+Ainsi, selon notre étude de donnée nous pouvons affirmer que l'environnement a un impact sur la réussite d'un élève, mais ce n'est pas la situation géographique qui crée cette empreinte mais la réussite des paires dans une série différente est-elle un facteur déterminant. 
+Nous pouvons ainsi conclure qu'un environnement où une filière a un taux de réussite élevé impactera de manière positive les chances de réussite d'un élève. Aussi, qu'un élève d'une grande métropole n'a concrétement pas plus ou moins de chances de réussir qu'un élève d'une région plus rurale. 
 
 ## Est ce que le taux de réussite des élèves en terminale S s'explique par la localisation des communes ?
 
