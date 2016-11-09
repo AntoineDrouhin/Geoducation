@@ -253,7 +253,7 @@ La première étape de ce cas de test réunie dans une nouvelle matrice, les col
 
 
 ```{r}
-bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S')]
+bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
 ```
 
 Maintenant que nous disposons des données propre à l'étude de ce cas, nous avons besoin de nettoyer les données. Il faut notemment mettre des valeurs nulles dans les champs non remplis et ramèner le taux à des valeurs comprises entre 0 et 1.
@@ -263,49 +263,63 @@ Maintenant que nous disposons des données propre à l'étude de ce cas, nous av
 bddReg[is.na(bddReg)] <- 0
 # Ramène le pourcentage du taux de réussite à une valeur entre 0 et 1
 bddReg[3] <- bddReg[3]/100
+bddReg[4] <- bddReg[4]/100
 ```
 
 Pour palier à des villes où aucun candidat ne serait inscrit dans la série S, nous supprimons volontairement ces enregistrements qui sont considérés comme des individus abérants pour notre études. C'est ce que fait la portion de code suivante.
 
 ```{r}
-df=data.frame(bddReg[1],bddReg[2],bddReg[3])
-df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0),]
+df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
+df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0 & df$Taux.Brut.de.réussite.série.L>0),]
 ```
 
 Ce que nous allons faire maintenant, c'est faire un groupement par ville en faisant la somme des effectifs et la moyenne des taux de réussite de chaque établissement pour avoir un seul enregistrement par ville.
 
 ```{r}
+# Addition des efefctifs groupé par Ville
 regData = aggregate(df$Effectif.Présents.série.S, by=list(df$Ville), FUN=sum)
+# Moyenne des taux de réussite des séries S assimilée
 regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Ville), FUN=mean)[2])
+# Moyenne des taux de réussite des séries L assimilée
+regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Ville), FUN=mean)[2])
 ```
 
-On peut donc maintenant s'apercevoir de la repartition du taux de réussite en fonction des effectifs par ville.
+On peut donc maintenant s'apercevoir de la repartition du taux de réussite S en fonction des effectifs par ville.
 
 ```{r}
-df = data.frame(regData[1], regData[2], regData[3])
-col_headings <- c('Ville','Effectif', 'TxRéussite')
+df = data.frame(regData[1], regData[2], regData[3], regData[4])
+col_headings <- c('Ville','EffectifS', 'TxRéussiteS', 'TxRéussiteL')
 names(df) <- col_headings
-plot(df$Effectif,df$TxRéussite)
+plot(df$EffectifS,df$TxRéussiteS)
 ```
 
 
 Nous allons donc effectuer une régréssion linéaire sur ces données pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat.
 ```{r}
-model<-lm(df$TxRéussite~df$Effectif, data = df)
+model<-lm(df$TxRéussiteS~df$EffectifS + df$TxRéussiteL, data = df)
 summary(model)
 ```
 
 
-On s'aperçoit que l'effectif explique peu le taux de réussite. En effet, pour une unité du taux de réussite, l'effectif change de 2.741e-05 ce qui très petit.
+On s'aperçoit que l'effectif explique peu le taux de réussite. En effet, pour une unité du taux de réussite, l'effectif change de 2.741e-05 ce qui est très petit.
 
 Le R carré ajusté en tendant vers 0 ( adjusted R sqare = 0.005677) nous indique aussi que l'effectif explique faiblement le taux de réussite avec environ 7 chance sur 1000 de se tromper donc cette prédiction est plutot forte (p-value = 0.007613).
 
-En traçant la droite ax + b correspondant au modèle (2.741e-05*x + 9.125e-01), on remarque sa faible pente et sa répresentation plutot horizontale ce qui indique aussi par le visuel un faible lien.
+En traçant la droite ax + b correspondant au modèle (2.741e-05*x + 6.171e-01), on remarque sa faible pente et sa répresentation plutot horizontale ce qui indique aussi par le visuel un faible lien.
 
 ```{r}
-plot(df$Effectif,df$TxRéussite)
+plot(df$EffectifS,df$TxRéussiteS)
 x <- seq(0,2300)
-lines(x,x*2.741e-05+9.125e-01,col="red")
+lines(x,x*2.741e-05+6.171e-01,col="red")
+```
+
+En revanche pour le taux de réussite des séries L explique encore une fois le taux de réussite des séries S. On peut imaginer que le niveau général d'une ville irradie de L en S. Ce lien exuste avec un R carré adjusté de 0.1533 avec une p-value infinitesimalement petite. Il y a donc quasiement aucune chance de se tromper sur ce point.
+
+A titre informatif voici la droite du modèle qui représente ce lien :
+```{r}
+plot(df$TxRéussiteL,df$TxRéussiteS)
+x <- seq(0,1)
+lines(x,x*3.228e-01+6.171e-01,col="red")
 ```
 
 #Conclusion Générale
