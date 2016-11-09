@@ -76,6 +76,7 @@ Plusieurs problématiques en découlent comme :
 Y a-t-il des différences de réussites entre le top 10 des grandes villes en France et les villes de province ?
 Paris bénéficie-t-elle d’une réussite supérieure au reste de la France ?
 Quelles régions de France semblent réussir mieux que les autres ?
+
 #### Initialisation de la base de données
 
 ```{r include=FALSE}
@@ -85,13 +86,13 @@ read.csv2("geoducation-data2.csv", sep=";", header=TRUE, na.strings = "", encodi
 
 ## Test de dépendance entre les académie et les filères (Méthode du khi-deux)
 
-Dans cette partie nous allons tenter de determiner si il existe une relation entre la géographie (Académies) et la répartition des élèves entre les différentes filliaires générale du lycée. Nous ne savons pas si la répartition répond a une forme de quotat de la part du ministaire.
+Dans cette partie nous allons tenter de déterminer s'il existe une relation entre la géographie (Académies) et la répartition des élèves entre les différentes filières générales du lycée. Nous ne savons pas si la répartition répond à une forme de quotat de la part du ministaire.
 
-Nous avont choisir d'utiliser la méthode du khi-deux car cela répond particulièrement bien aux besoins de cette analyse de dépendance entre deux variables qualitative (Des filliaires et des Académies). De plus nous avons choisis de montrer les différentes étapes du khi-deux, dans un soucis de clarté mais également pour avoir une vision de l'impact de chaque combinaison académie/filiaire sur le résultat. Ce derniers point nous permetra de présenter une analyse plus fine de la dépendance entre les deux variables.
+Nous avons choisi d'utiliser la méthode du khi-deux car cela répond particulièrement bien aux besoins de cette analyse de dépendance entre deux variables qualitatives (Des filières et des Académies). De plus nous avons choisi de montrer les différentes étapes du khi-deux, dans un soucis de clarté mais également pour avoir une vision de l'impact de chaque combinaison académie/filière sur le résultat. Ce dernier point nous permettra de présenter une analyse plus fine de la dépendance entre les deux variables.
 
-Notre hypothèse de départ est que la répartition des éléves entre les filiaires générale des lycée, d'une académie à l'autre, ne devrait pas changer.
+Notre hypothèse de départ est que la répartition des élèves entre les filières générales des lycées, d'une académie à l'autre, ne devrait pas changer.
 
-Nous commencons donc par aggreger les données de la base de données pour créer un tableaux qui servira de point de départ à l'application de la méthode. Nous avons aggregé les données présentes dans la base de données en sommant les effectifs par académie. Nous avont également restreint notre etude aux colonnes qui nous interessent, les effectifs présent dans les filliaires générales.
+Nous commencons donc par agréger les données de la base pour créer un tableaux qui servira de point de départ à l'application de la méthode. Nous avons sommé les données les effectifs par académie. Nous avons également restreint notre étude aux colonnes qui nous intéressent, les effectifs présents dans les filières générales.
 
 ```{r echo=FALSE}
 bddKhiDeux = bdd[, c('Académie','Effectif.Présents.série.L','Effectif.Présents.série.ES','Effectif.Présents.série.S')]
@@ -121,7 +122,7 @@ for(i in 1:nrow(bddKhiDeux)){
 print(tableKhiDeux)
 ```
 
-A partir de cette table nous allons calculer une table des valeurs théoriques que nous devrion trouver dans le tableau en fonction des effectifs totaux pour chaque filliaire et académie. (Voir Annexe1)
+A partir de cette table nous allons calculer une table des valeurs théoriques que nous devrions trouver dans le tableau en fonction des effectifs totaux pour chaque filière et académie. (Voir Annexe1)
 
 En fonction de ces deux tables on crée une table qui rend compte de l'influence des différentes combinaisons de variables sur le résultat du khi-deux. Cette table vas nous permettre de développer notre analyse ci-apres.
 
