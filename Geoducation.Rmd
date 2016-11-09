@@ -237,7 +237,7 @@ On peut ainsi estimer qu'un environnement où une filière a un taux de réussit
 
 ### Problématique
 
-Nous cherchons à savoir ici si le fait qu'un étudiant inscrit au baccalauréat d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique.
+Nous cherchons à savoir ici si le fait qu'un étudiant inscrit au baccalauréat S d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique. Nous voulons savoir aussi par la même occasion si le taux de réussite des séries L explique la réussite des séries S.
 
 ### Déroulement du test
 
@@ -247,7 +247,7 @@ La première étape de ce cas de test réunie dans une nouvelle matrice, les col
 bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
 ```
 
-Maintenant que nous disposons des données propres à l'étude de ce cas, nous avons besoin de nettoyer les données. Il faut notamment mettre des valeurs nulles dans les champs non remplis et ramèner le taux à des valeurs comprises entre 0 et 1.
+Pur parvenir à vérifier notre hypothèse, nous avons besoin de nettoyer les données aussi. Il faut notamment mettre des valeurs nulles dans les champs non remplis et ramèner le taux à des valeurs comprises entre 0 et 1 pour correspondre au formalisme que nous avons choisi.
 
 ```{r echo=FALSE}
 # Permet de mettre 0 dans les cases non remplies
@@ -257,14 +257,14 @@ bddReg[3] <- bddReg[3]/100
 bddReg[4] <- bddReg[4]/100
 ```
 
-Pour pallier à des villes où aucun candidat ne serait inscrit dans la série S, nous supprimons volontairement ces enregistrements qui sont considérés comme des individus aberrants pour notre étude. C'est ce que fait la portion de code suivante.
+Pour pallier à des villes où aucun candidat ne serait inscrit dans la série S, nous supprimons volontairement ces enregistrements qui sont considérés comme des individus aberrants pour notre étude.
 
 ```{r echo=FALSE}
 df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
 df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0 & df$Taux.Brut.de.réussite.série.L>0),]
 ```
 
-Ce que nous allons faire maintenant, c'est faire un groupement par ville en faisant la somme des effectifs et la moyenne des taux de réussite de chaque établissement pour avoir un seul enregistrement par ville.
+Un groupement par ville est fait par la somme des effectifs et la moyenne des taux de réussite de chaque établissement pour avoir un seul enregistrement par ville. 
 
 ```{r echo=FALSE}
 # Addition des efefctifs groupé par Ville
@@ -275,8 +275,6 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Vil
 regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Ville), FUN=mean)[2])
 ```
 
-On peut donc maintenant s'apercevoir de la répartition du taux de réussite S en fonction des effectifs par ville.
-
 ```{r echo=FALSE}
 df = data.frame(regData[1], regData[2], regData[3], regData[4])
 col_headings <- c('Ville','EffectifS', 'TxRéussiteS', 'TxRéussiteL')
@@ -284,14 +282,13 @@ names(df) <- col_headings
 plot(df$EffectifS,df$TxRéussiteS)
 ```
 
-### Analyse
+### Analyse des résultats
 
-Nous allons donc effectuer une régression linéaire sur ces données pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat.
+Une régression linéaire sur ces données est réalisée pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat S et du taux de réussite de ses camarades en série L.
 ```{r echo=FALSE}
 model<-lm(df$TxRéussiteS~df$EffectifS + df$TxRéussiteL, data = df)
 summary(model)
 ```
-
 
 On s'aperçoit que l'effectif explique peu le taux de réussite. En effet, pour une unité du taux de réussite, l'effectif change de 2.741e-05 ce qui est très petit.
 
@@ -305,7 +302,7 @@ x <- seq(0,2300)
 lines(x,x*2.741e-05+6.171e-01,col="red")
 ```
 
-En revanche pour le taux de réussite des séries L explique encore une fois le taux de réussite des séries S. On peut imaginer que le niveau général d'une ville irradie de L en S. Ce lien existe avec un R carré ajusté de 0.1533 avec une p-value infinitésimalement petite. Il y a donc quasiment aucune chance de se tromper sur ce point.
+En revanche le taux de réussite des séries L explique encore une fois le taux de réussite des séries S. On peut imaginer que le niveau général d'une ville irradie de L en S. Ce lien existe avec un R carré ajusté de 0.1533 avec une p-value infinitésimalement petite. Il y a donc quasiment aucune chance de se tromper sur ce point.
 
 A titre informatif voici la droite du modèle qui représente ce lien :
 ```{r echo=FALSE}
@@ -336,8 +333,8 @@ Catégorie effectifs
 Catégorie taux de réussite
   * Entre 0.8 et 0.9 : Bien
   * Entre 0.9 et 1 : Très Bien
-
-Commençons par reconstruire le tableau des effectifs qui nous servira au calcul du khi deux en respectant les catégorie énnoncées ci dessus.
+  
+Le reste des données est écarté de notre test.
 
 ```{r echo=FALSE}
 
@@ -360,7 +357,6 @@ GrandTBien <- sum(df$EffectifS[which(df$EffectifS>=500&df$EffectifS<= 1000 & df$
 GrandBien <- sum(df$EffectifS[which(df$EffectifS>=500&df$EffectifS<= 1000 & df$TxRéussiteS>=0.8&df$TxRéussiteS< 0.9 )])
 ```
 
-A partir de la construction des valeurs dont nous avons besoin, nous les réunissont dans une matrice.
 
 ```{r echo=FALSE}
 # Unification des données dans une matrice
@@ -374,13 +370,18 @@ rownames(chideuxData) <- c('Très bien', 'Bien')
 chideuxData
 ```
 
-Nous faisons maintenant le calcul de notre khi deux sur nos effectifs.
 
 ```{r echo=FALSE}
 chisq.test(chideuxData)
 ```
 
-Ce test d'indépendance par khi deux nous démontre qu'il y a dependance entre la taille de l'effectif et le taux de réussite en serie S. Un étudiant a donc plus de chance de réussir dans une grande ville. (P-value infiniment petite.)
+Ce test d'indépendance par le khi deux nous démontre qu'il y a dependance entre la taille de l'effectif et le taux de réussite en serie S. Un étudiant a donc plus de chance de réussir dans une grande ville. (P-value infiniment petite.)
+
+### Conclusion de la régréssion et du test d'indépendance
+
+Notre régréssion linéaire n'a pas permis de démontrer une forte explication de la réussite au baccalauréat de chaque ville par ses effectifs ce qui se veut rassurant. Cependant nous avons vu que la réussite des séries L par ville expliquait en plus grande proportion la réussite des séries S. Alors pourquoi ? On peut imaginer que le niveau d'un établissement est uniforme independemment des séries qu'il propose et que celà se repercute sur le score de chaque ville.
+
+Cependant, la représentation graphique du taux de réussite des séries S fonction de ses effectifs met en exergue certains échecs scolaires pour les petits effectifs et qui n'est pas présent dans les grands effectifs. Alors que peut on déduire de ça ? On pourrait imaginer qu'un petit groupe avec un élément perturbateur pourrait compromettre l'unification et la réussite de ce même groupe. Dans une grande masse de personne et par division de l'effectifs dans plsuieurs établissements c'est peut être un fait qui tend à se lisser et qui est moins présent.
 
 #Regression multiple (faut renommer ce titre en un truc de comrpéhensible)
 
