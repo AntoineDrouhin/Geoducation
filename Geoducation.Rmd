@@ -4,7 +4,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,tidy.opts=list(width.cutoff=60),tidy=TRUE)
 (WD <- getwd())
 if (!is.null(WD)) setwd(WD)
 ```
@@ -230,7 +230,6 @@ Nous pouvons représenter l'impact de l'effectif par le nuage de point suivant, 
 plot(df$Effectif,df$TxRéussiteS)
 x <- seq(0,18000)
 lines(x,x*-5.343e-08+4.434e-01,col="red")
-
 ```
 
 Nous pouvons représenter l'impact du taux de réussite de la série L par le nuage de points suivant, et nous constatons que la droite de la fonction de régression montre une augmentation forte. 
@@ -247,10 +246,17 @@ On peut ainsi estimer qu'un environnement où une filière a un taux de réussit
 
 ## Est ce que le taux de réussite des élèves en terminale S s'explique par la localisation des communes ?
 
+<<<<<<< 020b75ada2fa091a8a3338cc837fbd331950abaf
 Nous cherchons à savoir ici sur le fait qu'un étudiant inscrit au baccalauréat d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique.
+=======
+### Problématique
 
-La première étape de ce cas de test réunie dans une nouvelle matrice, les colonnes "Ville", "Effectif.Présents.série.S" et "Taux.Brut.de.réussite.série.S". Nous allons tenter d'expliquer par la suite le taux de réussite de chaque ville par les effectifs inscrit dans ces mêmes localisations.
+Nous cherchons à savoir ici si le fait qu'un étudiant inscrit au baccalauréat d'une commune a plus de chance de réussir que dans une autre commune. Nous allons regarder spécialement la série scientifique.
+>>>>>>> 9e90d9a087cc4bc4c76b42b31d5b3467a92c609d
 
+### Déroulement du test
+
+La première étape de ce cas de test réunie dans une nouvelle matrice, les colonnes "Ville", "Effectif.Présents.série.S" et "Taux.Brut.de.réussite.série.S". Nous allons tenter d'expliquer par la suite le taux de réussite de chaque ville par les effectifs inscrit dans ces mêmes localisations. Nous irons aussi voir si le taux de réussite de la série L explique en partie le taux de réussite de la série S.
 
 ```{r}
 bddReg = bdd[, c('Ville','Effectif.Présents.série.S', 'Taux.Brut.de.réussite.série.S', 'Taux.Brut.de.réussite.série.L')]
@@ -293,6 +299,7 @@ names(df) <- col_headings
 plot(df$EffectifS,df$TxRéussiteS)
 ```
 
+### Analyse
 
 Nous allons donc effectuer une régression linéaire sur ces données pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat.
 ```{r}
@@ -322,13 +329,82 @@ x <- seq(0,1)
 lines(x,x*3.228e-01+6.171e-01,col="red")
 ```
 
+### Pour aller plus loin (vérification de l'indépendance de l'effectifs par ville et du taux de réussite des séries S)
+
+Revenons un instant sur la repartition de notre nuage de point effectif serie S et taux de réussite série S. Il s'en dégage quelque chose de curieux que nous souhaitons éclaircir grace à test de chi deux.
+
+Regardons à nouveau le nuage de points :
+
+```{r}
+plot(df$EffectifS,df$TxRéussiteS)
+```
+
+Nous pouvons voir qu'il semble que les effectifs les plus petits tendent à moins réussir pour certains tandis que nous ne pouvons affirmer celà pour les grands effectifs. Comme nous avons un effectif par ville on peut imaginer qu'il existe un lien entre le nombre d'inscrit d'une ville et sa réussite au baccalauréat serie S.
+
+Pour parvenir à identifier cette dépendance nous allons mettre un place un test de chi deux. Nous allons dans un premier temps compartimenter les données comme ci dessous :
+
+Catégorie effectifs 
+  * Inférieur à 300 : Petit
+  * Entre 300 et 500 : Moyen
+  * Entre 500 et 1000 : Grand
+  
+Catégorie taux de réussite
+  * Entre 0.8 et 0.9 : Bien
+  * Entre 0.9 et 1 : Très Bien
+
+Commençons par reconstruire le tableau des effectifs qui nous servira au calcul du khi deux en respectant les catégorie énnoncées ci dessus.
+
+```{r}
+
+# Petit - Très bien
+PetitTBien <- sum(df$EffectifS[which(df$EffectifS>=1&df$EffectifS< 300 & df$TxRéussiteS>=0.9&df$TxRéussiteS<= 1 )])
+
+# Petit - Bien
+PetitBien <- sum(df$EffectifS[which(df$EffectifS>=1&df$EffectifS< 300 & df$TxRéussiteS>=0.8&df$TxRéussiteS< 0.9 )])
+
+# Moyen - Très bien
+MoyenTBien <- sum(df$EffectifS[which(df$EffectifS>=300&df$EffectifS< 500 & df$TxRéussiteS>=0.9&df$TxRéussiteS<= 1 )])
+
+# Moyen - Bien
+MoyenBien <- sum(df$EffectifS[which(df$EffectifS>=300&df$EffectifS< 500 & df$TxRéussiteS>=0.8&df$TxRéussiteS< 0.9 )])
+
+# Grand - Très bien
+GrandTBien <- sum(df$EffectifS[which(df$EffectifS>=500&df$EffectifS<= 1000 & df$TxRéussiteS>=0.9&df$TxRéussiteS<= 1 )])
+
+# Grand - Bien
+GrandBien <- sum(df$EffectifS[which(df$EffectifS>=500&df$EffectifS<= 1000 & df$TxRéussiteS>=0.8&df$TxRéussiteS< 0.9 )])
+```
+
+A partir de la construction des valeurs dont nous avons besoin, nous les réunissont dans une matrice.
+
+```{r}
+# Unification des données dans une matrice
+chideuxData <- data.frame(c(PetitTBien, PetitBien),c(MoyenTBien, MoyenBien), c(GrandTBien, GrandBien))
+
+# Nommage des colonnes et des lignes
+names(chideuxData) <- c('Effectif petit', 'Effectif moyen', 'Effectif grand')
+rownames(chideuxData) <- c('Très bien', 'Bien')
+
+# Affichage de nos effectifs réels
+chideuxData
+```
+
+Nous faisons maintenant le calcul de notre khi deux sur nos effectifs.
+
+```{r}
+chisq.test(chideuxData)
+```
+
+Ce test d'indépendance par khi deux nous démontre qu'il y a dependance entre la taille de l'effectif et le taux de réussite en serie S. Un étudiant a donc plus de chance de réussir dans une grande ville. (P-value infiniment petite.)
+
+
+#Regression simple
 
 ```{r, include=FALSE}
 # initialisation des données pour cecile
 bdd_complet <- read.csv2(file="geoducation-data2_cecile.csv", sep=";", header=TRUE, na.strings = "")
 ```
 
-#Regression simple
 
 La régression linéaire simple est une méthode statistique permettant de modéliser la relation linéaire entre 2 variables quantitatives.
 Nous effectuerons notre régression linéaire sur 2 variables : 
@@ -460,3 +536,6 @@ hist(resid(chu_reg_multi), col="grey", main="")
 Conclusion en cours de rédaction
 
 #Conclusion Générale
+
+
+
