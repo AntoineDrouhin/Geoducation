@@ -742,6 +742,5 @@ reg_multi_bdd[, 1] <- as.numeric(reg_multi_bdd[, 1])
 reg_multi <- lm(Reussite_Total ~ ., data=reg_multi_bdd)
 summary(reg_multi)
 
-hist(resid(reg_multi), col="grey", main="")
 ```
 
