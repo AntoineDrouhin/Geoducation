@@ -206,7 +206,9 @@ df=data.frame(bddReg[1],bddReg[2],bddReg[3], bddReg[4])
 #suppression des données aberrantes
 df<-df[(df$Effectif.Présents.série.S>0 & df$Taux.Brut.de.réussite.série.S>0 & df$Taux.Brut.de.réussite.série.L>0),]
 ```
+
 Pour mener une étude par académie nous devons agréger l'ensemble des établissements scolaire appartenant à la même académie.
+
 ```{r echo=FALSE}
 #regroupement des effectifs par académie
 regData = aggregate(df$Effectif.Présents.série.S, by=list(df$Académie), FUN=sum)
@@ -215,7 +217,9 @@ regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.S, by=list(df$Aca
 regData = c(regData,aggregate(df$Taux.Brut.de.réussite.série.L, by=list(df$Académie), FUN=mean)[2])
 
 ```
+
 Nous créerons ensuite notre model linéaire et nous procéderons à la régression. 
+
 ```{r echo=FALSE}
 #création du modèle 
 df = data.frame(regData[1], regData[2], regData[3], regData[4])
@@ -305,6 +309,7 @@ plot(df$EffectifS,df$TxRéussiteS)
 ### Analyse des résultats
 
 Une régression linéaire sur ces données est réalisée pour tenter d'expliquer le taux de réussites par le lieu d'inscription du candidat au baccalauréat S et du taux de réussite de ses camarades en série L.
+
 ```{r echo=FALSE}
 model<-lm(df$TxRéussiteS~df$EffectifS + df$TxRéussiteL, data = df)
 summary(model)
@@ -325,6 +330,7 @@ lines(x,x*2.741e-05+6.171e-01,col="red")
 En revanche le taux de réussite des séries L explique encore une fois le taux de réussite des séries S. On peut imaginer que le niveau général d'une ville irradie de L en S. Ce lien existe avec un R carré ajusté de 0.1533 avec une p-value infinitésimalement petite. Il y a donc quasiment aucune chance de se tromper sur ce point.
 
 A titre informatif voici la droite du modèle qui représente ce lien :
+
 ```{r echo=FALSE}
 plot(df$TxRéussiteL,df$TxRéussiteS)
 x <- seq(0,1)
