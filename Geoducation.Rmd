@@ -403,52 +403,62 @@ Notre régréssion linéaire n'a pas permis de démontrer une forte explication 
 
 Cependant, la représentation graphique du taux de réussite des séries S fonction de ses effectifs met en exergue certains échecs scolaires pour les petits effectifs et qui n'est pas présent dans les grands effectifs. Alors que peut on déduire de ça ? On pourrait imaginer qu'un petit groupe avec un élément perturbateur pourrait compromettre l'unification et la réussite de ce même groupe. Dans une grande masse de personne et par division de l'effectifs dans plsuieurs établissements c'est peut être un fait qui tend à se lisser et qui est moins présent.
 
-#Regression multiple (faut renommer ce titre en un truc de comrpéhensible)
+#Regression multiple
 
+## Par quels paramètres la relation avec le taux de réussite des élèves inscrits dans un lycée de voie générale et technologique peut-il être expliqué ?
 
-TODO : EXPLIQUER LE CODE PARCE QUE RIEN N'EST EXPIQUÉ
-```{r echo=FALSE}
-# [1] Extraction des champs qui nous interessent
+### Problématique
+Nous disposons d'une base de données présentant le taux de réussite à l'épreuve du baccalauréat en 2015 des différents établissements lycéens de France. Chaque établissement dispose d'une structure pédagogique différente. Un lycée proposant une large palette de formations est donc intéressant à étudier. 
+Notre étude se portera sur les lycées appartenant au groupe C qui regroupe les lycées offrant des formations à la fois générales (séries S, ES et L) et technologiques (série STMG et autres séries). En effet, le taux de réussite pour ce type d'établissement est intéressant à analyser afin de déterminer les critères participants essentiellement à la variation de ce taux de réussite. Quelles sont ces paramètres qui entrent en jeu ? Sont-elles significatives ? À quelle proportion participent-elles au taux de réussite de l'établissement ? Quelle est la précision du modèle ?
+
+Nous nous efforcerons de répondre à ces questions en analysant les données provenant de la base de l'éducation nationale. 
+Nous présenterons dans un premier temps le déroulement de l'analyse, puis son explication, et finirons par une petite conclusion.
+
+### Déroulement de l'analyse
+Il s'agit d'effectuer une régression linéaire multiple sur le taux de réussite des établissements du groupe C.
+
+La régression linéaire multiple consiste, à partir de différentes variables quantitatives, d'expliquer la variable dite dépendante.
+On dit alors qu'on cherche à exprimer la variable à expliquer en fonction de plusieurs variables explicatives.
+
+Le but de cette régression linéaire est de déterminer la significativité des variables, tout en minimisant le risque d'erreur pour prédire la précision du modèle.
+
+Pour ce faire, nous allons procéder à une extraction des données qui nous intéressent afin d'effectuer notre régression. 
+Nous allons sélectionner : 
+  - le secteur des établissements, 
+  - le groupe auquel il fait partie, 
+  - les effectifs pour chacune des filières générales de l'établissement,
+  - le taux de réussite pour chacune des filières générales de l'établissement,
+  - le taux de réussite de l'établissement, 
+  - le taux d'accès en première et en terminale
+```{r}
+# [1] Extraction des champs qui nous intéressent
 reg_multi_extrac_data = bdd[, c(
-  'Secteur.Public.PU.Privé.PR',
-  'Sructure.p.dagogique.en.7.groupes',
-  'Effectif.Présents.série.L',
-  'Effectif.Présents.série.ES', 
-  'Effectif.Présents.série.S', 
-  'Taux.Brut.de.réussite.série.L', 
-  'Taux.Brut.de.réussite.série.ES',
-  'Taux.Brut.de.réussite.série.S',
+  'Secteur.Public.PU.Privé.PR', 'Sructure.p.dagogique.en.7.groupes',
+  'Effectif.Présents.série.L', 'Effectif.Présents.série.ES', 'Effectif.Présents.série.S', 
+  'Taux.Brut.de.réussite.série.L', 'Taux.Brut.de.réussite.série.ES', 'Taux.Brut.de.réussite.série.S', 
   'Taux.Brut.de.réussite.Total.séries',
-  'Taux.accés.Brut.premi.re.BAC',
-  'Taux.accés.Brut.terminale.BAC'
+  'Taux.accés.Brut.premi.re.BAC', 'Taux.accés.Brut.terminale.BAC'
 )]
-
 # [2] Renommage des colonnes
 names(reg_multi_extrac_data) <- c(
-  'Secteur_lycee',
-  'Sructure_lycee',
-  'Effectif_L',
-  'Effectif_ES', 
-  'Effectif_S', 
-  'Reussite_L', 
-  'Reussite_ES',
-  'Reussite_S',
-  'Reussite_Total',
-  'Acces_prem_BAC',
-  'Acces_term_BAC'
+  'Secteur_lycee', 'Sructure_lycee',
+  'Effectif_L', 'Effectif_ES', 'Effectif_S', 
+  'Reussite_L', 'Reussite_ES', 'Reussite_S', 'Reussite_Total',
+  'Acces_prem_BAC', 'Acces_term_BAC'
 )
-
 # [3] Copie de l'extraction pour travailler dessus
 reg_multi_bdd = reg_multi_extrac_data
 str(reg_multi_bdd)
+```
 
+Un nettoyage des données permet de ne travailler qu'avec des données cohérentes.
+On retirera alors les filières non-généraux, les données non renseignées et nous remplacerons la variable qualitative (le secteur du lycée : public ou privé) en une variable quantitative (0 ou 1)
+```{r}
 # [4] Nettoyage des données
-# on ne s'interesse que aux données des établissements avec uniquement des filières généraux
-reg_multi_bdd <- subset(reg_multi_bdd, Sructure_lycee == "A")
-# suppression des lignes contenant des NA
-reg_multi_bdd <- na.omit(reg_multi_bdd)
-# suppression des colonnes non utilisées pour la regression
-reg_multi_bdd <- reg_multi_bdd[,-2]
+reg_multi_bdd <- subset(reg_multi_bdd, Sructure_lycee == "C") # établissements avec uniquement des filières S, ES, L, STMG, autres séries
+
+reg_multi_bdd <- na.omit(reg_multi_bdd) # suppression des lignes contenant des NA
+reg_multi_bdd <- reg_multi_bdd[,-2] # suppression des colonnes non utilisées pour la régression
 # conversion pour la reconnaissance des variables QUANTI
 for (i in 2:ncol(reg_multi_bdd)) {
   reg_multi_bdd[, i] <- as.numeric(as.character(reg_multi_bdd[, i]))
@@ -458,21 +468,31 @@ reg_multi_bdd[, 1] <- as.character(reg_multi_bdd[, 1])
 reg_multi_bdd$Secteur_lycee[reg_multi_bdd$Secteur_lycee=="PR"]<-"1"
 reg_multi_bdd$Secteur_lycee[reg_multi_bdd$Secteur_lycee=="PU"]<-"0"
 reg_multi_bdd[, 1] <- as.numeric(reg_multi_bdd[, 1])
+```
 
-# [5] Estimation des paramètres explicatives
+### Analyse
+Afin d'estimer les paramètres, nous allons devoir écrire le modèle en utilisant la fonction lm() qui va permettre d'ajuster le modèle linéaire.
+Nos données contiennent 9 variables explicatives sur lesquelles nous appliquons la régression linéaire afin de tenter d'expliquer le taux de réussite selon elles.
+```{r}
+# [5] Estimation des paramètres explicatifs
 reg_multi <- lm(Reussite_Total ~ ., data=reg_multi_bdd)
 summary(reg_multi)
 ```
-R² = 97% donc le modèle est précis
-Nous avons 97% de la variance du taux de réussite qui peut être expliquée par les variations de ... 
-```{r echo=FALSE}
-#reg_multi
-hist(resid(reg_multi), col="grey", main="")
-```
+Nous remarquons que 4 variables sont alors significatives pour le modèle : le secteur, le taux de réussite en L, ES et S, et le taux d'accès en terminale car la p-value est petite. Les coefficients estimés de ces paramètres étant petits, ils montrent la petite variation quand le taux de réussite de l'établissement augmente de 1%.
+Le R² ajusté mesure le pourcentage de la variance de la variable expliquée par la variance de toutes les variables explicatives.
+On remarque alors qu'elle est de 91% ce qui signifie que notre modèle est précis à 91%.
 
-Conclusion en cours de rédaction
+### Conclusion
+L'analyse des données des établissements du groupe C montre alors que le secteur du lycée (public ou privé) a un impact sur le taux de réussite. Les lycées privés ont un taux de réussite meilleur que les lycées publics (coefficient estimé positif).
+Les taux de réussites des filières générales ont également un impact sur le taux de réussite d'un établissement de groupe C.
+Le taux d'accès des élèves de terminale joue aussi sur le taux de réussite. 
+Ce modèle explique donc avec une bonne précision (91%) le taux de réussite d'un établissement de groupe C en fonction de ces paramètres étudiés
 
-#Conclusion Générale
+#Conclusion générale
+
+Les différentes analyses effectuées sur notre base de données montrent qu'il existe un lien très fort entre la situation géographique des établissements lycéens et les filières proposées à l'enseignement. 
+L'effectif d'un établissement ne joue pas sur sa réussite au baccalauréat. En revanche, pour des petits effectifs, la réussite de l'établissement pourrait s'expliquer certaines filières en particulier.
+Dans les lycées polyvalents, le taux de réussite au baccalauréat s'explique beaucoup par la réussite des filières générales. Et il semblerait aussi que les établissements privés présentent un meilleur taux de réussite que les publics.
 
 
 #Annexes
